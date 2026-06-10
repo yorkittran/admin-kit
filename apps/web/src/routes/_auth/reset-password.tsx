@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,36 +14,44 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/_auth/login")({
+export const Route = createFileRoute("/_auth/reset-password")({
   validateSearch: (search: Record<string, unknown>) => ({
-    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+    token: typeof search.token === "string" ? search.token : undefined,
   }),
-  component: LoginPage,
+  component: ResetPasswordPage,
 });
 
-function LoginPage() {
-  const router = useRouter();
-  const search = Route.useSearch();
+function ResetPasswordPage() {
+  const navigate = useNavigate();
+  const { token } = Route.useSearch();
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
-    defaultValues: { email: "", password: "" },
+    defaultValues: { newPassword: "", confirm: "" },
     onSubmit: async ({ value }) => {
-      setError(null);
-      const { error } = await authClient.signIn.email(value);
-      if (error) {
-        setError(error.message ?? "Sign in failed");
+      if (!token) {
+        setError("This link is invalid or has expired.");
         return;
       }
-      await router.navigate({ to: search.redirect ?? "/" });
+      setError(null);
+      const { error } = await authClient.resetPassword({
+        newPassword: value.newPassword,
+        token,
+      });
+      if (error) {
+        setError(error.message ?? "Could not reset password");
+        return;
+      }
+      toast.success("Password set — sign in with it now");
+      navigate({ to: "/login", search: { redirect: undefined } });
     },
   });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>admin-kit</CardTitle>
-        <CardDescription>Sign in to your account</CardDescription>
+        <CardTitle>Set a new password</CardTitle>
+        <CardDescription>Minimum 8 characters.</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -53,19 +62,19 @@ function LoginPage() {
           }}
         >
           <form.Field
-            name="email"
+            name="newPassword"
             validators={{
               onChange: ({ value }) =>
-                value.includes("@") ? undefined : "Enter a valid email",
+                value.length >= 8 ? undefined : "At least 8 characters",
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor={field.name}>Email</Label>
+                <Label htmlFor={field.name}>New password</Label>
                 <Input
                   id={field.name}
-                  type="email"
-                  autoComplete="email"
+                  type="password"
+                  autoComplete="new-password"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
@@ -79,19 +88,22 @@ function LoginPage() {
             )}
           </form.Field>
           <form.Field
-            name="password"
+            name="confirm"
             validators={{
-              onChange: ({ value }) =>
-                value.length >= 8 ? undefined : "At least 8 characters",
+              onChangeListenTo: ["newPassword"],
+              onChange: ({ value, fieldApi }) =>
+                value === fieldApi.form.getFieldValue("newPassword")
+                  ? undefined
+                  : "Passwords do not match",
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor={field.name}>Password</Label>
+                <Label htmlFor={field.name}>Confirm password</Label>
                 <Input
                   id={field.name}
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
@@ -105,18 +117,20 @@ function LoginPage() {
             )}
           </form.Field>
           {error && <p className="text-destructive text-sm">{error}</p>}
-          <Button asChild variant="link" className="justify-self-end px-0">
-            <Link to="/forgot-password">Forgot password?</Link>
-          </Button>
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting] as const}
           >
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                {isSubmitting ? "Signing in…" : "Sign in"}
+                {isSubmitting ? "Saving…" : "Set password"}
               </Button>
             )}
           </form.Subscribe>
+          <Button asChild variant="link" className="justify-self-center">
+            <Link to="/login" search={{ redirect: undefined }}>
+              Back to sign in
+            </Link>
+          </Button>
         </form>
       </CardContent>
     </Card>

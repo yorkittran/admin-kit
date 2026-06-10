@@ -59,6 +59,7 @@ function AppLayout() {
         <span className="mb-6 px-3 font-bold text-lg">admin-kit</span>
         <nav className="flex flex-1 flex-col gap-1">
           <NavLink to="/">Dashboard</NavLink>
+          <NavLink to="/products">Products</NavLink>
           {isAdmin && <NavLink to="/users">Users</NavLink>}
           <NavLink to="/profile">Profile</NavLink>
         </nav>

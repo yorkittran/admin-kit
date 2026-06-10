@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "check": "biome check . && bun run --filter '*' typecheck",
-    "db:migrate": "bun --cwd apps/server run db:migrate",
-    "db:generate": "bun --cwd apps/server run db:generate"
+    "db:migrate": "bun --cwd=apps/server run db:migrate",
+    "db:generate": "bun --cwd=apps/server run db:generate"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.0",

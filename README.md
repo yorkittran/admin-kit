@@ -5,7 +5,7 @@ Boilerplate for internal management systems. Bun · Elysia · Eden · Vite · Re
 ## Quick start
 
 ```bash
-cp .env.example .env && cp apps/web/.env.example apps/web/.env
+cp apps/server/.env.example apps/server/.env && cp apps/web/.env.example apps/web/.env
 docker compose up -d        # postgres 18 + mailpit (http://localhost:8025)
 bun install
 bun run db:migrate

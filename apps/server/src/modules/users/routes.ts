@@ -31,12 +31,21 @@ export const usersModule = new Elysia({ prefix: "/users" })
         throw error;
       }
       markInvited(body.email);
-      await auth.api.requestPasswordReset({
-        body: {
-          email: body.email,
-          redirectTo: `${env.WEB_ORIGIN}/reset-password`,
-        },
-      });
+      try {
+        await auth.api.requestPasswordReset({
+          body: {
+            email: body.email,
+            redirectTo: `${env.WEB_ORIGIN}/reset-password`,
+          },
+        });
+      } catch {
+        // User exists but the invite email failed. The invite marker stays
+        // set, so a later forgot-password for this email re-sends the invite.
+        return status(502, {
+          message:
+            "User created but the invite email failed to send. Use forgot password to resend it.",
+        });
+      }
       return { id: created.user.id };
     },
     {

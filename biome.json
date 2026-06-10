@@ -13,5 +13,10 @@
   },
   "formatter": { "indentStyle": "space" },
   "linter": { "enabled": true, "rules": { "recommended": true } },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

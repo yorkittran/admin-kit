@@ -7,7 +7,10 @@ export const ProductSchema = createSelectSchema(products);
 // Type.Omit(createInsertSchema(...)) hits TS2589 (excessively deep instantiation)
 // with drizzle-typebox schemas — destructure-rest omits the same keys while new
 // table columns still flow into the insert schema automatically.
-const baseInsertSchema = createInsertSchema(products);
+const baseInsertSchema = createInsertSchema(products, {
+  name: Type.String({ minLength: 1 }),
+  priceCents: Type.Integer({ minimum: 0 }),
+});
 const {
   id: _id,
   createdAt: _createdAt,

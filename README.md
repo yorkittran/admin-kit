@@ -24,6 +24,24 @@ link. Guard custom Elysia routes with the macros from `apps/server/src/auth/plug
 `{ auth: true }` (401 without session) or `{ role: "admin" }` (403 without role).
 Emails render with React Email and deliver through a pg-boss queue.
 
+## CRUD pattern
+
+`products` is the example resource — clone its shape to add your own:
+
+1. **Table** — `packages/shared/src/db/products.ts` (Drizzle, uuidv7 PK)
+2. **Schemas** — `packages/shared/src/schemas/products.ts` (drizzle-typebox →
+   insert/update schemas; one schema validates the Elysia route AND the
+   TanStack Form via `toStandardSchema`)
+3. **Server module** — `apps/server/src/modules/products/` (`service.ts` calls
+   `audit()` on every mutation; `routes.ts` is thin + TypeBox-validated)
+4. **Collection** — `apps/web/src/features/products/collection.ts` (TanStack DB
+   on TanStack Query: optimistic insert/update/delete with automatic rollback)
+5. **Screen** — `useLiveQuery` + shared `DataTable` (virtualized rows, sorting,
+   column visibility, debounced search) + form dialog built from
+   `components/form/` field wrappers
+
+Every mutation writes an `audit_logs` row (actor, action, before/after jsonb).
+
 ## Docs
 
 - Spec: docs/superpowers/specs/

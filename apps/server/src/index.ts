@@ -5,6 +5,7 @@ import { betterAuthPlugin } from "./auth/plugin";
 import { startJobs } from "./jobs";
 import { env } from "./lib/env";
 import { logger } from "./lib/logger";
+import { productsModule } from "./modules/products/routes";
 import { usersModule } from "./modules/users/routes";
 
 await startJobs();
@@ -14,6 +15,7 @@ const app = new Elysia()
   .use(openapi())
   .use(betterAuthPlugin)
   .use(usersModule)
+  .use(productsModule)
   .get("/health", () => ({ status: "ok" as const }))
   .listen(env.PORT);
 

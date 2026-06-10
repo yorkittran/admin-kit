@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { ModeToggle } from "@/components/mode-toggle";
 import { api } from "@/lib/api";
 
-export const Route = createFileRoute("/")({
-  component: Home,
+export const Route = createFileRoute("/_app/")({
+  component: Dashboard,
 });
 
-function Home() {
+function Dashboard() {
   const { data, isError } = useQuery({
     queryKey: ["health"],
     queryFn: async () => {
@@ -18,12 +17,11 @@ function Home() {
   });
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <h1 className="font-bold text-2xl">admin-kit</h1>
+    <div className="flex flex-col gap-4">
+      <h1 className="font-bold text-2xl">Dashboard</h1>
       <p className="text-muted-foreground">
         API: {isError ? "unreachable" : (data?.status ?? "connecting…")}
       </p>
-      <ModeToggle />
-    </main>
+    </div>
   );
 }

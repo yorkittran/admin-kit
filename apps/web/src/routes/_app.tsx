@@ -50,7 +50,7 @@ function AppLayout() {
 
   async function signOut() {
     await authClient.signOut();
-    router.history.push("/login");
+    await router.navigate({ to: "/login", search: { redirect: undefined } });
   }
 
   return (

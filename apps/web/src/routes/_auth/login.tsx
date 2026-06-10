@@ -34,7 +34,7 @@ function LoginPage() {
         setError(error.message ?? "Sign in failed");
         return;
       }
-      router.history.push(search.redirect ?? "/");
+      await router.navigate({ to: search.redirect ?? "/" });
     },
   });
 

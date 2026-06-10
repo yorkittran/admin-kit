@@ -6,6 +6,11 @@ const EnvSchema = Type.Object({
   PORT: Type.Number({ default: 3000 }),
   WEB_ORIGIN: Type.String({ default: "http://localhost:5173" }),
   LOG_LEVEL: Type.String({ default: "info" }),
+  BETTER_AUTH_SECRET: Type.String({ minLength: 1 }),
+  BETTER_AUTH_URL: Type.String({ default: "http://localhost:3000" }),
+  SMTP_HOST: Type.String({ default: "localhost" }),
+  SMTP_PORT: Type.Number({ default: 1025 }),
+  EMAIL_FROM: Type.String({ default: "admin-kit <noreply@admin-kit.local>" }),
 });
 
 const candidate = Value.Clean(

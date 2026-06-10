@@ -27,6 +27,10 @@ export async function updateProduct(
   id: string,
   data: ProductUpdate,
 ): Promise<Product | null> {
+  // Select-then-update is not transactional: a concurrent write between the
+  // two statements can leave a stale `before` snapshot in the audit row (the
+  // row itself stays correct). Acceptable for a low-write admin tool — wrap
+  // in db.transaction() if that ever changes.
   const [before] = await db.select().from(products).where(eq(products.id, id));
   if (!before) return null;
   // drizzle throws on an empty .set() — a no-op PATCH is just the current row

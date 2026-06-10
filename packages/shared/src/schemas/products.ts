@@ -8,8 +8,8 @@ export const ProductSchema = createSelectSchema(products);
 // with drizzle-typebox schemas — destructure-rest omits the same keys while new
 // table columns still flow into the insert schema automatically.
 const baseInsertSchema = createInsertSchema(products, {
-  name: Type.String({ minLength: 1 }),
-  priceCents: Type.Integer({ minimum: 0 }),
+  name: Type.String({ minLength: 1, maxLength: 255 }),
+  priceCents: Type.Integer({ minimum: 0, maximum: 2_147_483_647 }),
 });
 const {
   id: _id,

@@ -1,7 +1,8 @@
-import { auditLogs } from "@admin-kit/shared";
+import { type auditAction, auditLogs } from "@admin-kit/shared";
 import { db } from "../db/client";
 
-export type AuditAction = "create" | "update" | "delete";
+// Derived from the pgEnum — the DB schema stays the single source of truth.
+export type AuditAction = (typeof auditAction.enumValues)[number];
 
 // Awaited (not fire-and-forget) so a mutation and its audit row land
 // together — an unaudited mutation is worse than a slightly slower one.

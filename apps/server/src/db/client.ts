@@ -1,5 +1,6 @@
 import {
   accounts,
+  auditLogs,
   products,
   sessions,
   users,
@@ -9,5 +10,5 @@ import { drizzle } from "drizzle-orm/bun-sql";
 import { env } from "../lib/env";
 
 export const db = drizzle(env.DATABASE_URL, {
-  schema: { products, users, sessions, accounts, verifications },
+  schema: { accounts, auditLogs, products, sessions, users, verifications },
 });

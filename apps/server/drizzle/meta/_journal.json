@@ -8,6 +8,13 @@
       "when": 1781064731738,
       "tag": "0000_bitter_satana",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781071580469,
+      "tag": "0001_fluffy_vindicator",
+      "breakpoints": true
     }
   ]
 }

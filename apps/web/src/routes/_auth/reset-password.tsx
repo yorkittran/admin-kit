@@ -43,7 +43,7 @@ function ResetPasswordPage() {
         return;
       }
       toast.success("Password set — sign in with it now");
-      navigate({ to: "/login", search: { redirect: undefined } });
+      await navigate({ to: "/login", search: { redirect: undefined } });
     },
   });
 

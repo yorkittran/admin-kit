@@ -19,14 +19,23 @@ export const Route = createFileRoute("/_auth/forgot-password")({
 
 function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
+  const [networkError, setNetworkError] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: { email: "" },
     onSubmit: async ({ value }) => {
-      await authClient.requestPasswordReset({
-        email: value.email,
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+      setNetworkError(null);
+      try {
+        await authClient.requestPasswordReset({
+          email: value.email,
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+      } catch {
+        setNetworkError(
+          "Could not send the email. Please check your connection and try again.",
+        );
+        return;
+      }
       // always claim success — don't leak which emails exist
       setSent(true);
     },
@@ -86,6 +95,9 @@ function ForgotPasswordPage() {
                 </div>
               )}
             </form.Field>
+            {networkError && (
+              <p className="text-destructive text-sm">{networkError}</p>
+            )}
             <form.Subscribe
               selector={(state) =>
                 [state.canSubmit, state.isSubmitting] as const

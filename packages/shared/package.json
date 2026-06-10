@@ -1,0 +1,19 @@
+{
+  "name": "@admin-kit/shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.8",
+    "drizzle-orm": "^0.45.0",
+    "drizzle-typebox": "^0.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}

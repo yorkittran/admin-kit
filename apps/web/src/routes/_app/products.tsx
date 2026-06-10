@@ -58,7 +58,9 @@ function ProductsScreen() {
           }
         />
       )}
-      <ProductFormDialog open={createOpen} onOpenChange={setCreateOpen} />
+      {createOpen && (
+        <ProductFormDialog open={createOpen} onOpenChange={setCreateOpen} />
+      )}
     </div>
   );
 }

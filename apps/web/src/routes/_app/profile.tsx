@@ -26,9 +26,14 @@ function ProfilePage() {
   const nameForm = useForm({
     defaultValues: { name: session.user.name },
     onSubmit: async ({ value }) => {
-      const { error } = await authClient.updateUser({ name: value.name });
-      if (error) {
-        toast.error(error.message ?? "Could not update name");
+      try {
+        const { error } = await authClient.updateUser({ name: value.name });
+        if (error) {
+          toast.error(error.message ?? "Could not update name");
+          return;
+        }
+      } catch {
+        toast.error("Could not update name. Check your connection.");
         return;
       }
       toast.success("Name updated");
@@ -41,13 +46,18 @@ function ProfilePage() {
     defaultValues: { currentPassword: "", newPassword: "", confirm: "" },
     onSubmit: async ({ value }) => {
       setPasswordError(null);
-      const { error } = await authClient.changePassword({
-        currentPassword: value.currentPassword,
-        newPassword: value.newPassword,
-        revokeOtherSessions: true,
-      });
-      if (error) {
-        setPasswordError(error.message ?? "Could not change password");
+      try {
+        const { error } = await authClient.changePassword({
+          currentPassword: value.currentPassword,
+          newPassword: value.newPassword,
+          revokeOtherSessions: true,
+        });
+        if (error) {
+          setPasswordError(error.message ?? "Could not change password");
+          return;
+        }
+      } catch {
+        setPasswordError("Could not change password. Check your connection.");
         return;
       }
       passwordForm.reset();

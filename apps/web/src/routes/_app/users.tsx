@@ -44,6 +44,7 @@ export const Route = createFileRoute("/_app/users")({
 
 function UsersPage() {
   const queryClient = useQueryClient();
+  const { session } = Route.useRouteContext();
   const { data, isPending } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
@@ -58,13 +59,18 @@ function UsersPage() {
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["users"] });
 
   async function changeRole(userId: string, role: "admin" | "member") {
-    // Better Auth types infer "user"|"admin" but runtime config uses "member" as defaultRole
-    const { error } = await authClient.admin.setRole({
-      userId,
-      role: role as "user" | "admin",
-    });
-    if (error) {
-      toast.error(error.message ?? "Could not change role");
+    try {
+      // Better Auth types infer "user"|"admin" but runtime config uses "member" as defaultRole
+      const { error } = await authClient.admin.setRole({
+        userId,
+        role: role as "user" | "admin",
+      });
+      if (error) {
+        toast.error(error.message ?? "Could not change role");
+        return;
+      }
+    } catch {
+      toast.error("Could not change role. Check your connection.");
       return;
     }
     toast.success("Role updated");
@@ -72,11 +78,16 @@ function UsersPage() {
   }
 
   async function toggleBan(user: { id: string; banned?: boolean | null }) {
-    const { error } = user.banned
-      ? await authClient.admin.unbanUser({ userId: user.id })
-      : await authClient.admin.banUser({ userId: user.id });
-    if (error) {
-      toast.error(error.message ?? "Could not update user");
+    try {
+      const { error } = user.banned
+        ? await authClient.admin.unbanUser({ userId: user.id })
+        : await authClient.admin.banUser({ userId: user.id });
+      if (error) {
+        toast.error(error.message ?? "Could not update user");
+        return;
+      }
+    } catch {
+      toast.error("Could not update user. Check your connection.");
       return;
     }
     toast.success(user.banned ? "User unbanned" : "User banned");
@@ -114,6 +125,7 @@ function UsersPage() {
               <TableCell>
                 <Select
                   value={user.role ?? "member"}
+                  disabled={user.id === session.user.id}
                   onValueChange={(role) =>
                     changeRole(user.id, role as "admin" | "member")
                   }
@@ -138,6 +150,7 @@ function UsersPage() {
                 <Button
                   variant="outline"
                   size="sm"
+                  disabled={user.id === session.user.id}
                   onClick={() => toggleBan(user)}
                 >
                   {user.banned ? "Unban" : "Ban"}

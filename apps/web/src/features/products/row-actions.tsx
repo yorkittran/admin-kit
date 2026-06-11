@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { m } from "@/paraglide/messages";
 import {
   ProductMutationError,
   type ProductRow,
@@ -34,12 +35,12 @@ export function ProductRowActions({ product }: { product: ProductRow }) {
     try {
       const tx = productsCollection.delete(product.id);
       await tx.isPersisted.promise;
-      toast.success("Product deleted");
+      toast.success(m.products_deleted_toast());
     } catch (error) {
       toast.error(
         error instanceof ProductMutationError
           ? error.message
-          : "Could not delete product. Check your connection.",
+          : m.products_delete_error(),
       );
     }
   }
@@ -51,20 +52,20 @@ export function ProductRowActions({ product }: { product: ProductRow }) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label={`Actions for ${product.name}`}
+            aria-label={m.products_actions_for({ name: product.name })}
           >
             <MoreHorizontal className="size-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={() => setEditOpen(true)}>
-            Edit
+            {m.common_edit()}
           </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onSelect={() => setConfirmOpen(true)}
           >
-            Delete
+            {m.common_delete()}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -78,15 +79,18 @@ export function ProductRowActions({ product }: { product: ProductRow }) {
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete "{product.name}"?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {m.products_delete_confirm_title()}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes the product. The action is recorded in
-              the audit log.
+              {m.products_delete_confirm_body({ name: product.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel>{m.common_cancel()}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
+              {m.common_delete()}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

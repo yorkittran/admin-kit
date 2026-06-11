@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { m } from "@/paraglide/messages";
 import {
   ProductMutationError,
   type ProductRow,
@@ -32,8 +33,8 @@ type ProductFormValues = {
 };
 
 const STATUS_OPTIONS = [
-  { value: "active", label: "Active" },
-  { value: "archived", label: "Archived" },
+  { value: "active", label: m.products_status_active() },
+  { value: "archived", label: m.products_status_archived() },
 ] as const;
 
 interface ProductFormDialogProps {
@@ -77,7 +78,7 @@ export function ProductFormDialog({
             draft.status = value.status;
           });
           await tx.isPersisted.promise;
-          toast.success("Product updated");
+          toast.success(m.products_updated_toast());
         } else {
           // Client-generated id is optimistic-only; the server assigns the
           // real uuidv7 and the post-persist refetch reconciles the row.
@@ -92,7 +93,7 @@ export function ProductFormDialog({
             updatedAt: now,
           });
           await tx.isPersisted.promise;
-          toast.success("Product created");
+          toast.success(m.products_created_toast());
         }
         onOpenChange(false);
         form.reset();
@@ -117,7 +118,7 @@ export function ProductFormDialog({
         setServerError(
           error instanceof ProductMutationError
             ? error.message
-            : "Could not save product. Check your connection.",
+            : m.products_save_error(),
         );
       }
     },
@@ -127,11 +128,13 @@ export function ProductFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{product ? "Edit product" : "New product"}</DialogTitle>
+          <DialogTitle>
+            {product ? m.products_edit_title() : m.products_create_title()}
+          </DialogTitle>
           <DialogDescription>
             {product
-              ? "Update the product details."
-              : "Add a product to the catalog."}
+              ? m.products_edit_description()
+              : m.products_create_description()}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -142,16 +145,23 @@ export function ProductFormDialog({
           }}
         >
           <form.Field name="name">
-            {(field) => <TextField field={field} label="Name" />}
+            {(field) => (
+              <TextField field={field} label={m.products_name_label()} />
+            )}
           </form.Field>
           <form.Field name="description">
-            {(field) => <TextareaField field={field} label="Description" />}
+            {(field) => (
+              <TextareaField
+                field={field}
+                label={m.products_description_label()}
+              />
+            )}
           </form.Field>
           <form.Field name="priceCents">
             {(field) => (
               <NumberField
                 field={field}
-                label="Price (cents)"
+                label={m.products_price_label()}
                 min={0}
                 step={1}
               />
@@ -161,7 +171,7 @@ export function ProductFormDialog({
             {(field) => (
               <SelectField
                 field={field}
-                label="Status"
+                label={m.products_status_label()}
                 options={STATUS_OPTIONS}
               />
             )}
@@ -179,10 +189,10 @@ export function ProductFormDialog({
                 className="justify-self-end"
               >
                 {isSubmitting
-                  ? "Saving…"
+                  ? m.common_saving()
                   : product
-                    ? "Save changes"
-                    : "Create product"}
+                    ? m.products_save_changes()
+                    : m.products_create_title()}
               </Button>
             )}
           </form.Subscribe>

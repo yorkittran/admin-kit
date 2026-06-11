@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { productsCollection } from "@/features/products/collection";
 import { productColumns } from "@/features/products/columns";
 import { ProductFormDialog } from "@/features/products/form";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_app/products")({
   component: ProductsScreen,
@@ -35,25 +36,22 @@ function ProductsScreen() {
   return (
     <div className="grid gap-4">
       <div>
-        <h1 className="font-semibold text-2xl">Products</h1>
-        <p className="text-muted-foreground text-sm">
-          Example CRUD resource — optimistic mutations, live queries, audit
-          trail.
-        </p>
+        <h1 className="font-semibold text-2xl">{m.products_title()}</h1>
+        <p className="text-muted-foreground text-sm">{m.products_subtitle()}</p>
       </div>
       {isLoading ? (
-        <p className="text-muted-foreground text-sm">Loading…</p>
+        <p className="text-muted-foreground text-sm">{m.common_loading()}</p>
       ) : (
         <DataTable
           columns={productColumns}
           data={products}
           getRowId={(product) => product.id}
           onSearchChange={handleSearchChange}
-          searchPlaceholder="Search products…"
+          searchPlaceholder={m.products_search_placeholder()}
           toolbar={
             <Button size="sm" onClick={() => setCreateOpen(true)}>
               <Plus className="mr-1 size-4" />
-              New product
+              {m.products_new()}
             </Button>
           }
         />

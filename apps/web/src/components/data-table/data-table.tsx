@@ -27,13 +27,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { m } from "@/paraglide/messages";
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
   getRowId: (row: TData) => string;
   onSearchChange: (value: string) => void;
-  searchPlaceholder?: string;
+  searchPlaceholder: string;
   toolbar?: ReactNode;
 }
 
@@ -42,7 +43,7 @@ export function DataTable<TData>({
   data,
   getRowId,
   onSearchChange,
-  searchPlaceholder = "Search…",
+  searchPlaceholder,
   toolbar,
 }: DataTableProps<TData>) {
   const [search, setSearch] = useState("");
@@ -102,7 +103,7 @@ export function DataTable<TData>({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="ml-auto">
               <Columns3 className="mr-1 size-4" />
-              Columns
+              {m.datatable_columns()}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -159,7 +160,7 @@ export function DataTable<TData>({
                   colSpan={visibleColumnCount}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No results.
+                  {m.datatable_no_results()}
                 </TableCell>
               </TableRow>
             ) : (
@@ -195,7 +196,7 @@ export function DataTable<TData>({
         </table>
       </div>
       <p className="text-muted-foreground text-sm">
-        {selectedCount} of {rows.length} row(s) selected
+        {m.datatable_selected({ selected: selectedCount, total: rows.length })}
       </p>
     </div>
   );

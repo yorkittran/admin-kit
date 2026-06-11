@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "@/components/data-table/sortable-header";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { m } from "@/paraglide/messages";
 import type { ProductRow } from "./collection";
 import { ProductRowActions } from "./row-actions";
 
@@ -22,14 +23,14 @@ export const productColumns: ColumnDef<ProductRow>[] = [
           (table.getIsSomeRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
-        aria-label="Select all"
+        aria-label={m.datatable_select_all()}
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        aria-label={m.datatable_select_row()}
       />
     ),
     enableSorting: false,
@@ -38,13 +39,13 @@ export const productColumns: ColumnDef<ProductRow>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <SortableHeader column={column}>Name</SortableHeader>
+      <SortableHeader column={column}>{m.products_name_label()}</SortableHeader>
     ),
     cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: () => m.products_description_label(),
     cell: ({ row }) => (
       <span className="block max-w-64 truncate text-muted-foreground">
         {row.original.description ?? "—"}
@@ -54,25 +55,31 @@ export const productColumns: ColumnDef<ProductRow>[] = [
   {
     accessorKey: "priceCents",
     header: ({ column }) => (
-      <SortableHeader column={column}>Price</SortableHeader>
+      <SortableHeader column={column}>
+        {m.products_price_header()}
+      </SortableHeader>
     ),
     cell: ({ row }) => formatPrice(row.original.priceCents),
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: () => m.products_status_label(),
     cell: ({ row }) => (
       <Badge
         variant={row.original.status === "active" ? "default" : "secondary"}
       >
-        {row.original.status}
+        {row.original.status === "active"
+          ? m.products_status_active()
+          : m.products_status_archived()}
       </Badge>
     ),
   },
   {
     accessorKey: "createdAt",
     header: ({ column }) => (
-      <SortableHeader column={column}>Created</SortableHeader>
+      <SortableHeader column={column}>
+        {m.products_created_header()}
+      </SortableHeader>
     ),
     cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
   },

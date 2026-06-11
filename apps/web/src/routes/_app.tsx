@@ -62,6 +62,7 @@ function AppLayout() {
           <NavLink to="/">{m.nav_dashboard()}</NavLink>
           <NavLink to="/products">{m.nav_products()}</NavLink>
           {isAdmin && <NavLink to="/users">{m.nav_users()}</NavLink>}
+          {isAdmin && <NavLink to="/audit-log">{m.nav_audit_log()}</NavLink>}
           <NavLink to="/profile">{m.nav_profile()}</NavLink>
         </nav>
         <div className="flex items-center justify-between">

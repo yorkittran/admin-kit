@@ -71,7 +71,7 @@
   "products_save_error": "Không thể lưu sản phẩm. Vui lòng kiểm tra kết nối.",
   "products_delete_error": "Không thể xóa sản phẩm. Vui lòng kiểm tra kết nối.",
   "products_delete_confirm_title": "Xóa sản phẩm?",
-  "products_delete_confirm_body": "Thao tác này xóa vĩnh viễn {name}.",
+  "products_delete_confirm_body": "Thao tác này xóa vĩnh viễn {name}. Hành động được ghi lại trong nhật ký hoạt động.",
   "products_actions_for": "Thao tác cho {name}",
   "datatable_columns": "Cột",
   "datatable_select_all": "Chọn tất cả",

@@ -71,7 +71,7 @@
   "products_save_error": "Could not save product. Check your connection.",
   "products_delete_error": "Could not delete product. Check your connection.",
   "products_delete_confirm_title": "Delete product?",
-  "products_delete_confirm_body": "This permanently deletes {name}.",
+  "products_delete_confirm_body": "This permanently deletes {name}. The action is recorded in the audit log.",
   "products_actions_for": "Actions for {name}",
   "datatable_columns": "Columns",
   "datatable_select_all": "Select all",

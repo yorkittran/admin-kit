@@ -32,6 +32,7 @@ type ProductFormValues = {
   status: "active" | "archived";
 };
 
+// Module-load m.* is safe: setLocale() reloads the page (see locale-switcher.tsx).
 const STATUS_OPTIONS = [
   { value: "active", label: m.products_status_active() },
   { value: "archived", label: m.products_status_archived() },

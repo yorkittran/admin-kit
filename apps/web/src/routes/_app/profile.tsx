@@ -90,7 +90,7 @@ function ProfilePage() {
                 onChange: ({ value }) =>
                   value.trim().length > 0
                     ? undefined
-                    : m.profile_name_required(),
+                    : m.common_name_required(),
               }}
             >
               {(field) => (
@@ -163,7 +163,7 @@ function ProfilePage() {
               name="newPassword"
               validators={{
                 onChange: ({ value }) =>
-                  value.length >= 8 ? undefined : m.profile_password_min(),
+                  value.length >= 8 ? undefined : m.common_password_min(),
               }}
             >
               {(field) => (
@@ -192,7 +192,7 @@ function ProfilePage() {
                 onChange: ({ value, fieldApi }) =>
                   value === fieldApi.form.getFieldValue("newPassword")
                     ? undefined
-                    : m.profile_passwords_no_match(),
+                    : m.common_passwords_no_match(),
               }}
             >
               {(field) => (

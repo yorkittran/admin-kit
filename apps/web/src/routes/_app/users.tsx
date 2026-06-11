@@ -246,7 +246,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
             name="name"
             validators={{
               onChange: ({ value }) =>
-                value.trim().length > 0 ? undefined : m.profile_name_required(),
+                value.trim().length > 0 ? undefined : m.common_name_required(),
             }}
           >
             {(field) => (

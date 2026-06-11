@@ -83,7 +83,7 @@ function LoginPage() {
             name="password"
             validators={{
               onChange: ({ value }) =>
-                value.length >= 8 ? undefined : m.profile_password_min(),
+                value.length >= 8 ? undefined : m.common_password_min(),
             }}
           >
             {(field) => (

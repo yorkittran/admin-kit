@@ -4,6 +4,7 @@ import { openapi } from "@elysiajs/openapi";
 import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 import { rateLimit } from "elysia-rate-limit";
+import { auditModule } from "./audit/routes";
 import { betterAuthPlugin } from "./auth/plugin";
 import { startJobs } from "./jobs";
 import { cronJobs } from "./jobs/cron";
@@ -87,6 +88,7 @@ const app = new Elysia()
   .use(betterAuthPlugin)
   .use(usersModule)
   .use(productsModule)
+  .use(auditModule)
   .get("/health", () => ({ status: "ok" as const }))
   .listen(env.PORT);
 

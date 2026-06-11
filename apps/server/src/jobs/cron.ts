@@ -10,6 +10,8 @@ const guard = (name: string, sweep: () => Promise<number>) => () =>
     logger.error({ err }, `cron job ${name} failed`);
   });
 
+// Cron patterns fire in the host's local timezone, not UTC.
+// Multi-instance deployments would need a distributed lock so only one instance runs each sweep.
 export const cronJobs = new Elysia({ name: "cron-jobs" })
   .use(
     cron({

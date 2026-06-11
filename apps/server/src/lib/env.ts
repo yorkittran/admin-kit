@@ -17,6 +17,8 @@ const EnvSchema = Type.Object({
   OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(
     Type.String({ pattern: "^https?://" }),
   ),
+  // <= 0 (the default) disables audit-log pruning — rows are kept forever.
+  AUDIT_RETENTION_DAYS: Type.Number({ default: 0 }),
 });
 
 const candidate = Value.Clean(

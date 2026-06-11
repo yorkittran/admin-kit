@@ -6,6 +6,7 @@ import { helmet } from "elysia-helmet";
 import { rateLimit } from "elysia-rate-limit";
 import { betterAuthPlugin } from "./auth/plugin";
 import { startJobs } from "./jobs";
+import { cronJobs } from "./jobs/cron";
 import { env } from "./lib/env";
 import { logger } from "./lib/logger";
 import { otel } from "./lib/otel";
@@ -20,6 +21,8 @@ const app = new Elysia()
   // otel early so spans cover the whole middleware chain; instrumentation is
   // env-gated in lib/otel.ts (no OTEL_EXPORTER_OTLP_ENDPOINT → no-op plugin).
   .use(otel)
+  // daily maintenance sweeps (expired sessions, audit retention) — see jobs/cron.ts
+  .use(cronJobs)
   // ignore error contexts: wrap's own onError would log every non-404 error,
   // duplicating the envelope's single logger.error below and logging 422
   // validation misses at error level. Response (access) logging stays on.

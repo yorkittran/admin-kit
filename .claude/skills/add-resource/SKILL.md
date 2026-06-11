@@ -40,7 +40,7 @@ Read `apps/web/src/routes/_app/products.tsx`. Clone: `useLiveQuery` over the col
 
 ## 8. i18n — `apps/web/messages/en.json` + `vi.json`
 
-Add ALL new user-facing strings to BOTH files, following the products key naming (`nav_<resource>`, `<resource>_title`, `<resource>_created_toast`, …). Run `bun --cwd=apps/web run paraglide:compile` (or let typecheck do it). Never edit `apps/web/src/paraglide/**`.
+Add ALL new user-facing strings to every catalog in `apps/web/messages/` (currently `en.json` and `vi.json`), following the products key naming (`nav_<resource>`, `<resource>_title`, `<resource>_created_toast`, …). Run `bun --cwd=apps/web run paraglide:compile` (or let typecheck do it). Never edit `apps/web/src/paraglide/**`.
 
 ## 9. Nav + palette
 
@@ -52,7 +52,7 @@ Add ALL new user-facing strings to BOTH files, following the products key naming
 1. `bun run check` passes.
 2. `bun dev`, log in as admin, exercise create → edit → delete in the UI; toasts appear; the list table stays consistent after each mutation.
 3. Check audit rows: each mutation added one row visible in the Audit log screen (or `select action, resource from audit_logs order by created_at desc limit 5`).
-4. Switch locale to vi — any new string still rendering in English means the key is missing from `vi.json` (Paraglide silently falls back to the base locale; typecheck will not catch it). A key-parity diff of `en.json`/`vi.json` is the deterministic check.
+4. Switch locale to vi — any new string still rendering in English means the key is missing from that catalog (Paraglide silently falls back to the base locale; typecheck will not catch it). A key-parity diff across all catalogs in `apps/web/messages/` is the deterministic check.
 5. Cmd/Ctrl+K: the nav entry navigates, typing a record name shows the record-jump group, and the "New <resource>" quick action opens the create dialog.
 
 Work through the steps in order; steps 1–3 must land before 4 (server imports the table), and 4 before 5 (collection calls the routes).

@@ -42,6 +42,29 @@ Emails render with React Email and deliver through a pg-boss queue.
 
 Every mutation writes an `audit_logs` row (actor, action, before/after jsonb).
 
+## Hardening & operations
+
+- Security headers (`elysia-helmet`, CSP off for the Scalar docs page) and a global rate limit (300 req/min/IP, `RateLimit-*` headers) wrap every route; `/health` is exempt from the limit.
+- Errors leave the API as `{ code, message }` envelopes — except 422 validation, which keeps Elysia's native shape so forms can map field errors (the rate limiter's 429 is plain text).
+- Traces export over OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; otherwise instrumentation is a no-op.
+- Cron sweeps (`@elysiajs/cron`): expired sessions daily at 03:00, audit retention at 03:30 (`AUDIT_RETENTION_DAYS=0` keeps everything).
+
+## Audit log viewer
+
+Admins get `/audit-log`: filter by actor email, resource, action, and date range; paginated server-side; every row opens a before/after JSON diff. The API lives at `GET /audit` (admin-only).
+
+## i18n
+
+Paraglide compiles `messages/{en,vi}.json` into typed functions (`m.key()`). The Vite plugin recompiles on save; `src/paraglide/` is generated — never edit it. Locale persists per browser (localStorage) and switches from Profile → Language. Adding a string = add the key to BOTH catalogs, then use `m.your_key()`. Adding a locale = extend `locales` in `project.inlang/settings.json` + add `messages/<code>.json`.
+
+## Command palette
+
+⌘K (Ctrl+K) anywhere inside the app: navigate screens, search products by name (jumps with the list pre-filtered), create a product, switch theme, sign out. `/` focuses the active table's search box.
+
+## Devtools
+
+Dev builds mount the TanStack Devtools shell (Query, Router, Pacer panels — a DB panel doesn't exist yet). `@tanstack/devtools-vite` strips all of it from production bundles.
+
 ## Docs
 
 - Spec: docs/superpowers/specs/

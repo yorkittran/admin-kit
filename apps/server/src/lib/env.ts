@@ -14,6 +14,7 @@ const EnvSchema = Type.Object({
   SMTP_HOST: Type.String({ default: "localhost" }),
   SMTP_PORT: Type.Number({ default: 1025 }),
   EMAIL_FROM: Type.String({ default: "admin-kit <noreply@admin-kit.local>" }),
+  OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String()),
 });
 
 const candidate = Value.Clean(

@@ -18,5 +18,5 @@ ElysiaJS + Eden treaty. One schema (TypeBox) produces runtime validation, static
 ## Consequences
 
 - Web app imports `App` type from `@admin-kit/server` and gets a fully typed client (`apps/web/src/lib/api.ts`).
-- Bus-factor risk accepted (spec §10): handlers stay web-standard so a Hono migration is mechanical.
+- Bus-factor risk accepted (spec §10): business logic lives in service functions, so a framework migration rewrites only the thin route layer.
 - Elysia plugins (cors, openapi, cron, opentelemetry) cover the middleware needs without expressisms.

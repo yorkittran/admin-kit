@@ -11,7 +11,7 @@ Screens need server state with optimistic mutations, cross-screen consistency (p
 
 ## Decision
 
-TanStack DB collections over Eden-fetched data (query-db-collection). Newest-tech philosophy explicitly accepts beta risk (spec §10) — versions pinned, context7 MCP configured for current docs.
+TanStack DB collections (`@tanstack/react-db`) backed by `@tanstack/query-db-collection` over raw Eden fetches. Newest-tech philosophy explicitly accepts beta risk (spec §10) — versions pinned, context7 MCP configured for current docs.
 
 ## Consequences
 

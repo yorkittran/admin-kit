@@ -8,7 +8,7 @@ The boilerplate needs one JS runtime for the API server, the monorepo workspace 
 
 - **Node.js** — safest ecosystem compatibility; slowest startup, needs tsx/ts-node for TS, npm/pnpm as a separate tool.
 - **Deno** — best security model and built-in TS; company layoffs and product pivots in 2025 raised maintenance-health concerns, and npm interop still has friction.
-- **Bun** — fastest startup and test runner, first-class TS, built-in bundler, workspaces, and `bun-sql` Postgres driver; younger ecosystem with occasional driver-level quirks.
+- **Bun** — fastest startup and test runner, first-class TS, built-in bundler, workspaces, and a built-in Postgres client (used via the `drizzle-orm/bun-sql` adapter); younger ecosystem with occasional driver-level quirks.
 
 ## Decision
 

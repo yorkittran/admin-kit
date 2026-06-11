@@ -3,3 +3,4 @@ dist/
 .env
 *.tsbuildinfo
 docker-compose.override.yml
+apps/web/src/paraglide/

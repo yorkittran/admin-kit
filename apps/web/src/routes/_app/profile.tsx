@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_app/profile")({
   component: ProfilePage,
@@ -239,6 +241,16 @@ function ProfilePage() {
         </CardHeader>
         <CardContent>
           <ModeToggle />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{m.profile_language()}</CardTitle>
+          <CardDescription>{m.profile_language_hint()}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LocaleSwitcher />
         </CardContent>
       </Card>
     </div>

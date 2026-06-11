@@ -17,8 +17,8 @@ await startJobs();
 const app = new Elysia()
   // cors first so even 429/500 responses carry CORS headers the browser can read
   .use(cors({ origin: env.WEB_ORIGIN, credentials: true }))
-  // otel early so spans cover the whole middleware chain; exporter is
-  // env-gated in lib/otel.ts (no OTEL_EXPORTER_OTLP_ENDPOINT → no exporters).
+  // otel early so spans cover the whole middleware chain; instrumentation is
+  // env-gated in lib/otel.ts (no OTEL_EXPORTER_OTLP_ENDPOINT → no-op plugin).
   .use(otel)
   // ignore error contexts: wrap's own onError would log every non-404 error,
   // duplicating the envelope's single logger.error below and logging 422

@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(bun run *)",
+      "Bash(bun --cwd=* run *)",
       "Bash(bun dev*)",
       "Bash(bun db:*)",
       "Bash(bunx drizzle-kit *)",

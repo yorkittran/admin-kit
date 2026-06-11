@@ -85,7 +85,7 @@ function AuditLogPage() {
     },
   });
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["audit", filters, page],
     placeholderData: keepPreviousData,
     queryFn: async () => {
@@ -204,7 +204,14 @@ function AuditLogPage() {
               </TableCell>
             </TableRow>
           )}
-          {!isPending && (data?.rows.length ?? 0) === 0 && (
+          {isError && (
+            <TableRow>
+              <TableCell colSpan={6} className="text-destructive">
+                {m.audit_load_error()}
+              </TableCell>
+            </TableRow>
+          )}
+          {!isPending && !isError && (data?.rows.length ?? 0) === 0 && (
             <TableRow>
               <TableCell colSpan={6} className="text-muted-foreground">
                 {m.audit_no_rows()}
@@ -223,12 +230,12 @@ function AuditLogPage() {
                     row.action === "delete" ? "destructive" : "secondary"
                   }
                 >
-                  {actionLabels[row.action as AuditAction]()}
+                  {actionLabels[row.action]()}
                 </Badge>
               </TableCell>
               <TableCell>{row.resource}</TableCell>
-              <TableCell className="font-mono text-xs">
-                {row.resourceId.slice(0, 8)}…
+              <TableCell className="font-mono text-xs" title={row.resourceId}>
+                …{row.resourceId.slice(-8)}
               </TableCell>
               <TableCell className="text-right">
                 <Button

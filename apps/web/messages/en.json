@@ -134,6 +134,7 @@
   "audit_from": "From",
   "audit_to": "To",
   "audit_no_rows": "No audit entries match the filters.",
+  "audit_load_error": "Failed to load audit entries. Try again or check the server.",
   "audit_page_info": "Page {page} of {pages} — {total} entries",
   "audit_prev": "Previous",
   "audit_next": "Next",

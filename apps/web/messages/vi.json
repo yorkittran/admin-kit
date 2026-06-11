@@ -134,6 +134,7 @@
   "audit_from": "Từ ngày",
   "audit_to": "Đến ngày",
   "audit_no_rows": "Không có mục nào khớp với bộ lọc.",
+  "audit_load_error": "Không thể tải nhật ký hoạt động. Thử lại hoặc kiểm tra máy chủ.",
   "audit_page_info": "Trang {page} / {pages} — {total} mục",
   "audit_prev": "Trước",
   "audit_next": "Sau",

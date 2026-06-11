@@ -17,17 +17,33 @@ export const Route = createFileRoute("/_app/")({
 
 const DAY_MS = 86_400_000;
 
+function startOfLocalDay(date: Date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function localDayLabel(d: Date) {
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${month}-${day}`;
+}
+
 function lastThirtyDays(createdDates: Date[]) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = startOfLocalDay(new Date());
+  const start = new Date(today);
+  start.setDate(start.getDate() - 29);
   const days: { day: string; count: number }[] = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(today.getTime() - i * DAY_MS);
-    days.push({ day: d.toISOString().slice(5, 10), count: 0 });
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    days.push({ day: localDayLabel(d), count: 0 });
   }
-  const start = today.getTime() - 29 * DAY_MS;
   for (const created of createdDates) {
-    const idx = Math.floor((created.getTime() - start) / DAY_MS);
+    // round (not floor) absorbs DST hour-drift between local midnights
+    const idx = Math.round(
+      (startOfLocalDay(created).getTime() - start.getTime()) / DAY_MS,
+    );
     const bucket = days[idx];
     if (bucket) bucket.count += 1;
   }

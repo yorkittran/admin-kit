@@ -2,10 +2,12 @@ import { Elysia, t } from "elysia";
 import { betterAuthPlugin } from "../auth/plugin";
 import { listAuditLogs, listAuditResources } from "./service";
 
-// format: "date" (RFC 3339 full-date) over a bare \d{4}-\d{2}-\d{2} regex:
-// the regex would accept calendar-invalid input like 2026-13-99, which turns
-// into an Invalid Date and throws inside drizzle (500 instead of 422).
-const dateString = t.String({ format: "date" });
+// pattern anchors the shape to YYYY-MM-DD (Elysia's "date" format alone also
+// accepts datetimes and slash dates); format rejects calendar-invalid dates like 2026-13-99.
+const dateString = t.String({
+  format: "date",
+  pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+});
 
 export const auditModule = new Elysia({ prefix: "/audit" })
   .use(betterAuthPlugin)

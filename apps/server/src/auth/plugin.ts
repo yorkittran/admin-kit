@@ -27,7 +27,7 @@ export const betterAuthPlugin = new Elysia({ name: "better-auth" })
       ) {
         return auth.handler(request);
       }
-      set.headers.allow = "GET, POST";
+      set.headers.allow = "GET, HEAD, POST";
       return status(405);
     },
     { parse: "none" },

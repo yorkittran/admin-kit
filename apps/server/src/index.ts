@@ -37,12 +37,18 @@ const app = new Elysia()
       countFailedRequest: true,
       // Direct TCP peer by default; behind a trusted reverse proxy set
       // TRUST_PROXY=true so clients don't all collapse into the proxy's bucket.
-      generator: (request, server) =>
-        (env.TRUST_PROXY
-          ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-          : undefined) ??
-        server?.requestIP(request)?.address ??
-        "",
+      generator: (request, server) => {
+        if (env.TRUST_PROXY) {
+          const client = request.headers
+            .get("x-forwarded-for")
+            ?.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .at(-1); // last entry = the one appended by the trusted proxy
+          if (client) return client;
+        }
+        return server?.requestIP(request)?.address ?? "";
+      },
       skip: (request) => new URL(request.url).pathname === "/health",
     }),
   )

@@ -19,10 +19,15 @@ export const betterAuthPlugin = new Elysia({ name: "better-auth" })
   // Elysia consumes the body first and auth.handler throws BODY_ALREADY_USED.
   .all(
     "/api/auth/*",
-    ({ request, status }) => {
-      if (request.method === "GET" || request.method === "POST") {
+    ({ request, status, set }) => {
+      if (
+        request.method === "GET" ||
+        request.method === "HEAD" ||
+        request.method === "POST"
+      ) {
         return auth.handler(request);
       }
+      set.headers.allow = "GET, POST";
       return status(405);
     },
     { parse: "none" },

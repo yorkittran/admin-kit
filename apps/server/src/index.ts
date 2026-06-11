@@ -16,7 +16,10 @@ await startJobs();
 const app = new Elysia()
   // cors first so even 429/500 responses carry CORS headers the browser can read
   .use(cors({ origin: env.WEB_ORIGIN, credentials: true }))
-  .use(wrap(logger))
+  // ignore error contexts: wrap's own onError would log every non-404 error,
+  // duplicating the envelope's single logger.error below and logging 422
+  // validation misses at error level. Response (access) logging stays on.
+  .use(wrap(logger, { autoLogging: { ignore: (ctx) => ctx.isError } }))
   // CSP off: this server returns JSON plus the Scalar docs page, which needs
   // inline scripts/styles. Re-enable with directives if it ever serves more HTML.
   .use(helmet({ contentSecurityPolicy: false }))
@@ -25,7 +28,21 @@ const app = new Elysia()
       duration: 60_000,
       max: 300,
       headers: true,
-      generator: (request, server) => server?.requestIP(request)?.address ?? "",
+      // Without this, the plugin's onError REFUNDS the counter for any non-404
+      // error — but PARSE/VALIDATION throw before beforeHandle ever increments,
+      // so malformed requests would decrement counts they never added (an
+      // attacker could interleave bad-JSON posts to undo rate-limit charges).
+      // Residual plugin limitation: pre-beforeHandle failures are merely
+      // uncounted — they no longer refund anything.
+      countFailedRequest: true,
+      // Direct TCP peer by default; behind a trusted reverse proxy set
+      // TRUST_PROXY=true so clients don't all collapse into the proxy's bucket.
+      generator: (request, server) =>
+        (env.TRUST_PROXY
+          ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+          : undefined) ??
+        server?.requestIP(request)?.address ??
+        "",
       skip: (request) => new URL(request.url).pathname === "/health",
     }),
   )
@@ -45,7 +62,9 @@ const app = new Elysia()
     if (code === "PARSE") {
       return status(400, { code: "PARSE", message: "Invalid request body" });
     }
-    logger.error(error, "unhandled error");
+    // { err: error } — the registered err serializer handles non-Error throws
+    // predictably (vs passing the bare value as pino's merge object).
+    logger.error({ err: error }, "unhandled error");
     return status(500, {
       code: "INTERNAL_SERVER_ERROR",
       message: "An unexpected error occurred",

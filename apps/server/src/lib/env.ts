@@ -6,6 +6,9 @@ const EnvSchema = Type.Object({
   PORT: Type.Number({ default: 3000 }),
   WEB_ORIGIN: Type.String({ default: "http://localhost:5173" }),
   LOG_LEVEL: Type.String({ default: "info" }),
+  // Only enable behind a trusted reverse proxy: it makes rate limiting key on
+  // X-Forwarded-For, which is client-spoofable when the server is exposed directly.
+  TRUST_PROXY: Type.Boolean({ default: false }),
   BETTER_AUTH_SECRET: Type.String({ minLength: 1 }),
   BETTER_AUTH_URL: Type.String({ default: "http://localhost:3000" }),
   SMTP_HOST: Type.String({ default: "localhost" }),

@@ -44,10 +44,14 @@ Every mutation writes an `audit_logs` row (actor, action, before/after jsonb).
 
 ## Hardening & operations
 
-- Security headers (`elysia-helmet`, CSP off for the Scalar docs page) and a global rate limit (300 req/min/IP, `RateLimit-*` headers) wrap every route; `/health` is exempt from the limit.
-- Errors leave the API as `{ code, message }` envelopes — except 422 validation, which keeps Elysia's native shape so forms can map field errors (the rate limiter's 429 is plain text).
+- Security headers (`elysia-helmet`, CSP disabled globally — the Scalar docs page needs inline scripts) and a global rate limit (300 req/min/IP, `RateLimit-*` headers) wrap every route; `/health` is exempt from the limit.
+- Errors leave the API as `{ code, message }` envelopes — except 422 validation, which keeps Elysia's native shape so forms can map field errors (the rate limiter's 429 and the auth macros' 401/403 are plain text).
 - Traces export over OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; otherwise instrumentation is a no-op.
 - Cron sweeps (`@elysiajs/cron`): expired sessions daily at 03:00, audit retention at 03:30 (`AUDIT_RETENTION_DAYS=0` keeps everything).
+
+## Dashboard
+
+`/` shows product stat cards plus created-last-30-days and by-status charts, fed entirely from the products TanStack DB collection — no extra endpoints.
 
 ## Audit log viewer
 

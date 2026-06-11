@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc --noEmit",
-    "paraglide:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
+    "paraglide:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --strategy localStorage preferredLanguage baseLocale",
     "typecheck": "bun run paraglide:compile && tsc --noEmit"
   },
   "dependencies": {

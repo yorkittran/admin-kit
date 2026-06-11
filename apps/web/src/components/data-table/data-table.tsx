@@ -49,7 +49,10 @@ export function DataTable<TData>({
   toolbar,
 }: DataTableProps<TData>) {
   const [search, setSearch] = useState(initialSearch ?? "");
-  const [debouncedSearch] = useDebouncedValue(search, { wait: 300 });
+  const [debouncedSearch] = useDebouncedValue(search, {
+    wait: 300,
+    key: "datatable-search",
+  });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});

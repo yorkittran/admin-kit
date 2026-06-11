@@ -1,13 +1,22 @@
 import { sql } from "drizzle-orm";
 import {
+  customType,
   index,
-  jsonb,
   pgEnum,
   pgTable,
   text,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+
+// drizzle's jsonb type stringifies in toDriver and bun-sql serializes the
+// parameter again, storing a JSON string instead of an object. Identity
+// toDriver leaves serialization to the driver alone.
+const jsonbColumn = customType<{ data: unknown }>({
+  dataType() {
+    return "jsonb";
+  },
+});
 
 export const auditAction = pgEnum("audit_action", [
   "create",
@@ -24,8 +33,8 @@ export const auditLogs = pgTable(
     action: auditAction("action").notNull(),
     resource: text("resource").notNull(),
     resourceId: text("resource_id").notNull(),
-    before: jsonb("before"),
-    after: jsonb("after"),
+    before: jsonbColumn("before"),
+    after: jsonbColumn("after"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

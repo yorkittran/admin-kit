@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: async ({ location }) => {
@@ -58,10 +59,10 @@ function AppLayout() {
       <aside className="flex w-56 flex-col border-r p-4">
         <span className="mb-6 px-3 font-bold text-lg">admin-kit</span>
         <nav className="flex flex-1 flex-col gap-1">
-          <NavLink to="/">Dashboard</NavLink>
-          <NavLink to="/products">Products</NavLink>
-          {isAdmin && <NavLink to="/users">Users</NavLink>}
-          <NavLink to="/profile">Profile</NavLink>
+          <NavLink to="/">{m.nav_dashboard()}</NavLink>
+          <NavLink to="/products">{m.nav_products()}</NavLink>
+          {isAdmin && <NavLink to="/users">{m.nav_users()}</NavLink>}
+          <NavLink to="/profile">{m.nav_profile()}</NavLink>
         </nav>
         <div className="flex items-center justify-between">
           <ModeToggle />
@@ -69,7 +70,7 @@ function AppLayout() {
             variant="ghost"
             size="icon"
             onClick={signOut}
-            aria-label="Sign out"
+            aria-label={m.nav_sign_out()}
           >
             <LogOut className="h-5 w-5" />
           </Button>

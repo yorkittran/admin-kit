@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_auth/reset-password")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -30,7 +31,7 @@ function ResetPasswordPage() {
     defaultValues: { newPassword: "", confirm: "" },
     onSubmit: async ({ value }) => {
       if (!token) {
-        setError("This link is invalid or has expired.");
+        setError(m.auth_reset_link_invalid());
         return;
       }
       setError(null);
@@ -39,10 +40,10 @@ function ResetPasswordPage() {
         token,
       });
       if (error) {
-        setError(error.message ?? "Could not reset password");
+        setError(error.message ?? m.auth_reset_password_error());
         return;
       }
-      toast.success("Password set — sign in with it now");
+      toast.success(m.auth_password_set_toast());
       await navigate({ to: "/login", search: { redirect: undefined } });
     },
   });
@@ -50,8 +51,8 @@ function ResetPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Set a new password</CardTitle>
-        <CardDescription>Minimum 8 characters.</CardDescription>
+        <CardTitle>{m.auth_set_new_password()}</CardTitle>
+        <CardDescription>{m.auth_password_min_hint()}</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -65,12 +66,12 @@ function ResetPasswordPage() {
             name="newPassword"
             validators={{
               onChange: ({ value }) =>
-                value.length >= 8 ? undefined : "At least 8 characters",
+                value.length >= 8 ? undefined : m.profile_password_min(),
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor={field.name}>New password</Label>
+                <Label htmlFor={field.name}>{m.auth_new_password()}</Label>
                 <Input
                   id={field.name}
                   type="password"
@@ -94,12 +95,12 @@ function ResetPasswordPage() {
               onChange: ({ value, fieldApi }) =>
                 value === fieldApi.form.getFieldValue("newPassword")
                   ? undefined
-                  : "Passwords do not match",
+                  : m.profile_passwords_no_match(),
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor={field.name}>Confirm password</Label>
+                <Label htmlFor={field.name}>{m.auth_confirm_password()}</Label>
                 <Input
                   id={field.name}
                   type="password"
@@ -122,13 +123,13 @@ function ResetPasswordPage() {
           >
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                {isSubmitting ? "Saving…" : "Set password"}
+                {isSubmitting ? m.common_saving() : m.auth_set_password()}
               </Button>
             )}
           </form.Subscribe>
           <Button asChild variant="link" className="justify-self-center">
             <Link to="/login" search={{ redirect: undefined }}>
-              Back to sign in
+              {m.auth_back_to_login()}
             </Link>
           </Button>
         </form>

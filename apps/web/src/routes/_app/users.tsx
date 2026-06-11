@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/table";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_app/users")({
   beforeLoad: ({ context }) => {
@@ -66,14 +67,14 @@ function UsersPage() {
         role: role as "user" | "admin",
       });
       if (error) {
-        toast.error(error.message ?? "Could not change role");
+        toast.error(error.message ?? m.users_role_error());
         return;
       }
     } catch {
-      toast.error("Could not change role. Check your connection.");
+      toast.error(m.common_connection_error());
       return;
     }
-    toast.success("Role updated");
+    toast.success(m.users_role_updated());
     refresh();
   }
 
@@ -83,38 +84,40 @@ function UsersPage() {
         ? await authClient.admin.unbanUser({ userId: user.id })
         : await authClient.admin.banUser({ userId: user.id });
       if (error) {
-        toast.error(error.message ?? "Could not update user");
+        toast.error(error.message ?? m.users_update_error());
         return;
       }
     } catch {
-      toast.error("Could not update user. Check your connection.");
+      toast.error(m.common_connection_error());
       return;
     }
-    toast.success(user.banned ? "User unbanned" : "User banned");
+    toast.success(
+      user.banned ? m.users_unbanned_toast() : m.users_banned_toast(),
+    );
     refresh();
   }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-bold text-2xl">Users</h1>
+        <h1 className="font-bold text-2xl">{m.users_title()}</h1>
         <InviteDialog onInvited={refresh} />
       </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{m.common_name()}</TableHead>
+            <TableHead>{m.common_email()}</TableHead>
+            <TableHead>{m.users_role()}</TableHead>
+            <TableHead>{m.common_status()}</TableHead>
+            <TableHead className="text-right">{m.common_actions()}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isPending && (
             <TableRow>
               <TableCell colSpan={5} className="text-muted-foreground">
-                Loading…
+                {m.common_loading()}
               </TableCell>
             </TableRow>
           )}
@@ -134,16 +137,20 @@ function UsersPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">admin</SelectItem>
-                    <SelectItem value="member">member</SelectItem>
+                    <SelectItem value="admin">
+                      {m.users_role_admin()}
+                    </SelectItem>
+                    <SelectItem value="member">
+                      {m.users_role_member()}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </TableCell>
               <TableCell>
                 {user.banned ? (
-                  <Badge variant="destructive">banned</Badge>
+                  <Badge variant="destructive">{m.users_banned()}</Badge>
                 ) : (
-                  <Badge variant="secondary">active</Badge>
+                  <Badge variant="secondary">{m.users_active()}</Badge>
                 )}
               </TableCell>
               <TableCell className="text-right">
@@ -153,7 +160,7 @@ function UsersPage() {
                   disabled={user.id === session.user.id}
                   onClick={() => toggleBan(user)}
                 >
-                  {user.banned ? "Unban" : "Ban"}
+                  {user.banned ? m.users_unban() : m.users_ban()}
                 </Button>
               </TableCell>
             </TableRow>
@@ -181,11 +188,11 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
           error.value !== null &&
           "message" in error.value
             ? String(error.value.message)
-            : "Could not send invite";
+            : m.users_invite_error();
         toast.error(message);
         return;
       }
-      toast.success(`Invite sent to ${value.email}`);
+      toast.success(m.users_invite_sent({ email: value.email }));
       form.reset();
       setOpen(false);
       onInvited();
@@ -196,14 +203,12 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Invite user</Button>
+        <Button>{m.users_invite()}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Invite user</DialogTitle>
-          <DialogDescription>
-            They'll get an email link to set their password.
-          </DialogDescription>
+          <DialogTitle>{m.users_invite()}</DialogTitle>
+          <DialogDescription>{m.users_invite_description()}</DialogDescription>
         </DialogHeader>
         <form
           className="grid gap-4"
@@ -216,12 +221,12 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
             name="email"
             validators={{
               onChange: ({ value }) =>
-                value.includes("@") ? undefined : "Enter a valid email",
+                value.includes("@") ? undefined : m.common_email_invalid(),
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor="invite-email">Email</Label>
+                <Label htmlFor="invite-email">{m.common_email()}</Label>
                 <Input
                   id="invite-email"
                   type="email"
@@ -241,12 +246,12 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
             name="name"
             validators={{
               onChange: ({ value }) =>
-                value.trim().length > 0 ? undefined : "Name is required",
+                value.trim().length > 0 ? undefined : m.profile_name_required(),
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor="invite-name">Name</Label>
+                <Label htmlFor="invite-name">{m.common_name()}</Label>
                 <Input
                   id="invite-name"
                   value={field.state.value}
@@ -264,7 +269,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
           <form.Field name="role">
             {(field) => (
               <div className="grid gap-2">
-                <Label>Role</Label>
+                <Label>{m.users_role()}</Label>
                 <Select
                   value={field.state.value}
                   onValueChange={(value) =>
@@ -275,8 +280,12 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="member">member</SelectItem>
-                    <SelectItem value="admin">admin</SelectItem>
+                    <SelectItem value="member">
+                      {m.users_role_member()}
+                    </SelectItem>
+                    <SelectItem value="admin">
+                      {m.users_role_admin()}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -287,7 +296,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
           >
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                {isSubmitting ? "Sending…" : "Send invite"}
+                {isSubmitting ? m.common_sending() : m.users_invite_send()}
               </Button>
             )}
           </form.Subscribe>

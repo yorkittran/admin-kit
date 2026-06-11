@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_auth/login")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -31,7 +32,7 @@ function LoginPage() {
       setError(null);
       const { error } = await authClient.signIn.email(value);
       if (error) {
-        setError(error.message ?? "Sign in failed");
+        setError(error.message ?? m.auth_sign_in_failed());
         return;
       }
       await router.navigate({ to: search.redirect ?? "/" });
@@ -42,7 +43,7 @@ function LoginPage() {
     <Card>
       <CardHeader>
         <CardTitle>admin-kit</CardTitle>
-        <CardDescription>Sign in to your account</CardDescription>
+        <CardDescription>{m.auth_sign_in_description()}</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -56,12 +57,12 @@ function LoginPage() {
             name="email"
             validators={{
               onChange: ({ value }) =>
-                value.includes("@") ? undefined : "Enter a valid email",
+                value.includes("@") ? undefined : m.common_email_invalid(),
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor={field.name}>Email</Label>
+                <Label htmlFor={field.name}>{m.common_email()}</Label>
                 <Input
                   id={field.name}
                   type="email"
@@ -82,12 +83,12 @@ function LoginPage() {
             name="password"
             validators={{
               onChange: ({ value }) =>
-                value.length >= 8 ? undefined : "At least 8 characters",
+                value.length >= 8 ? undefined : m.profile_password_min(),
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor={field.name}>Password</Label>
+                <Label htmlFor={field.name}>{m.auth_password()}</Label>
                 <Input
                   id={field.name}
                   type="password"
@@ -106,14 +107,14 @@ function LoginPage() {
           </form.Field>
           {error && <p className="text-destructive text-sm">{error}</p>}
           <Button asChild variant="link" className="justify-self-end px-0">
-            <Link to="/forgot-password">Forgot password?</Link>
+            <Link to="/forgot-password">{m.auth_forgot_password()}</Link>
           </Button>
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting] as const}
           >
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                {isSubmitting ? "Signing in…" : "Sign in"}
+                {isSubmitting ? m.auth_signing_in() : m.auth_sign_in()}
               </Button>
             )}
           </form.Subscribe>

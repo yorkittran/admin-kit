@@ -31,14 +31,14 @@ function ProfilePage() {
       try {
         const { error } = await authClient.updateUser({ name: value.name });
         if (error) {
-          toast.error(error.message ?? "Could not update name");
+          toast.error(error.message ?? m.profile_name_update_error());
           return;
         }
       } catch {
-        toast.error("Could not update name. Check your connection.");
+        toast.error(m.common_connection_error());
         return;
       }
-      toast.success("Name updated");
+      toast.success(m.profile_name_updated());
       router.invalidate();
     },
   });
@@ -55,25 +55,25 @@ function ProfilePage() {
           revokeOtherSessions: true,
         });
         if (error) {
-          setPasswordError(error.message ?? "Could not change password");
+          setPasswordError(error.message ?? m.profile_password_change_error());
           return;
         }
       } catch {
-        setPasswordError("Could not change password. Check your connection.");
+        setPasswordError(m.common_connection_error());
         return;
       }
       passwordForm.reset();
-      toast.success("Password changed — other sessions signed out");
+      toast.success(m.profile_password_changed());
     },
   });
 
   return (
     <div className="flex max-w-lg flex-col gap-6">
-      <h1 className="font-bold text-2xl">Profile</h1>
+      <h1 className="font-bold text-2xl">{m.profile_title()}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Account</CardTitle>
+          <CardTitle>{m.profile_account()}</CardTitle>
           <CardDescription>{session.user.email}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -88,12 +88,14 @@ function ProfilePage() {
               name="name"
               validators={{
                 onChange: ({ value }) =>
-                  value.trim().length > 0 ? undefined : "Name is required",
+                  value.trim().length > 0
+                    ? undefined
+                    : m.profile_name_required(),
               }}
             >
               {(field) => (
                 <div className="grid gap-2">
-                  <Label htmlFor={field.name}>Name</Label>
+                  <Label htmlFor={field.name}>{m.common_name()}</Label>
                   <Input
                     id={field.name}
                     value={field.state.value}
@@ -119,7 +121,7 @@ function ProfilePage() {
                   disabled={!canSubmit || isSubmitting}
                   className="justify-self-start"
                 >
-                  {isSubmitting ? "Saving…" : "Save"}
+                  {isSubmitting ? m.common_saving() : m.common_save()}
                 </Button>
               )}
             </nameForm.Subscribe>
@@ -129,10 +131,8 @@ function ProfilePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Password</CardTitle>
-          <CardDescription>
-            Changing your password signs out other sessions.
-          </CardDescription>
+          <CardTitle>{m.profile_password()}</CardTitle>
+          <CardDescription>{m.profile_password_hint()}</CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -145,7 +145,9 @@ function ProfilePage() {
             <passwordForm.Field name="currentPassword">
               {(field) => (
                 <div className="grid gap-2">
-                  <Label htmlFor={field.name}>Current password</Label>
+                  <Label htmlFor={field.name}>
+                    {m.profile_current_password()}
+                  </Label>
                   <Input
                     id={field.name}
                     type="password"
@@ -161,12 +163,12 @@ function ProfilePage() {
               name="newPassword"
               validators={{
                 onChange: ({ value }) =>
-                  value.length >= 8 ? undefined : "At least 8 characters",
+                  value.length >= 8 ? undefined : m.profile_password_min(),
               }}
             >
               {(field) => (
                 <div className="grid gap-2">
-                  <Label htmlFor={field.name}>New password</Label>
+                  <Label htmlFor={field.name}>{m.profile_new_password()}</Label>
                   <Input
                     id={field.name}
                     type="password"
@@ -190,12 +192,14 @@ function ProfilePage() {
                 onChange: ({ value, fieldApi }) =>
                   value === fieldApi.form.getFieldValue("newPassword")
                     ? undefined
-                    : "Passwords do not match",
+                    : m.profile_passwords_no_match(),
               }}
             >
               {(field) => (
                 <div className="grid gap-2">
-                  <Label htmlFor={field.name}>Confirm new password</Label>
+                  <Label htmlFor={field.name}>
+                    {m.profile_confirm_password()}
+                  </Label>
                   <Input
                     id={field.name}
                     type="password"
@@ -226,7 +230,9 @@ function ProfilePage() {
                   disabled={!canSubmit || isSubmitting}
                   className="justify-self-start"
                 >
-                  {isSubmitting ? "Saving…" : "Change password"}
+                  {isSubmitting
+                    ? m.common_saving()
+                    : m.profile_change_password()}
                 </Button>
               )}
             </passwordForm.Subscribe>
@@ -236,8 +242,8 @@ function ProfilePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>Theme preference for this browser.</CardDescription>
+          <CardTitle>{m.profile_appearance()}</CardTitle>
+          <CardDescription>{m.profile_appearance_hint()}</CardDescription>
         </CardHeader>
         <CardContent>
           <ModeToggle />

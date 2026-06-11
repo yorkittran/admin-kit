@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_auth/forgot-password")({
   component: ForgotPasswordPage,
@@ -31,9 +32,7 @@ function ForgotPasswordPage() {
           redirectTo: `${window.location.origin}/reset-password`,
         });
       } catch {
-        setNetworkError(
-          "Could not send the email. Please check your connection and try again.",
-        );
+        setNetworkError(m.auth_send_email_error());
         return;
       }
       // always claim success — don't leak which emails exist
@@ -44,20 +43,18 @@ function ForgotPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Forgot password</CardTitle>
+        <CardTitle>{m.auth_forgot_password_title()}</CardTitle>
         <CardDescription>
-          We'll email you a link to reset your password.
+          {m.auth_forgot_password_description()}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {sent ? (
           <div className="grid gap-4">
-            <p className="text-sm">
-              If an account exists for that email, a reset link is on its way.
-            </p>
+            <p className="text-sm">{m.auth_reset_sent_notice()}</p>
             <Button asChild variant="outline">
               <Link to="/login" search={{ redirect: undefined }}>
-                Back to sign in
+                {m.auth_back_to_login()}
               </Link>
             </Button>
           </div>
@@ -73,12 +70,12 @@ function ForgotPasswordPage() {
               name="email"
               validators={{
                 onChange: ({ value }) =>
-                  value.includes("@") ? undefined : "Enter a valid email",
+                  value.includes("@") ? undefined : m.common_email_invalid(),
               }}
             >
               {(field) => (
                 <div className="grid gap-2">
-                  <Label htmlFor={field.name}>Email</Label>
+                  <Label htmlFor={field.name}>{m.common_email()}</Label>
                   <Input
                     id={field.name}
                     type="email"
@@ -105,13 +102,13 @@ function ForgotPasswordPage() {
             >
               {([canSubmit, isSubmitting]) => (
                 <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                  {isSubmitting ? "Sending…" : "Send reset link"}
+                  {isSubmitting ? m.common_sending() : m.auth_send_reset_link()}
                 </Button>
               )}
             </form.Subscribe>
             <Button asChild variant="link" className="justify-self-center">
               <Link to="/login" search={{ redirect: undefined }}>
-                Back to sign in
+                {m.auth_back_to_login()}
               </Link>
             </Button>
           </form>

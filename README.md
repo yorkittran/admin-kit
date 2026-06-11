@@ -42,6 +42,18 @@ Emails render with React Email and deliver through a pg-boss queue.
 
 Every mutation writes an `audit_logs` row (actor, action, before/after jsonb).
 
+## AI development layer
+
+The repo ships project-scoped Claude Code configuration — clone it and `claude` is ready:
+
+- **`CLAUDE.md`** (root + `apps/server/` + `apps/web/`) — commands, hard rules, per-tree conventions.
+- **`docs/decisions/`** — ADRs for every stack choice; read before proposing changes.
+- **`/new-resource <name>`** — scaffolds a full CRUD resource via the `add-resource` skill (schema → server module → collection → screen → i18n → nav/palette → audit). Also: `/db-migrate`, `/add-locale <code>`.
+- **`.claude/settings.json`** — biome auto-format on every edit (PostToolUse), a guard that blocks editing generated files (PreToolUse, exit 2 with the exact generator command to run instead), a Bash allowlist for `bun`/`drizzle-kit`/`biome`/`docker compose`, and the superpowers plugin enabled for the spec → plan → implement workflow under `docs/superpowers/`.
+- **`.mcp.json`** — context7 MCP server for live docs on the fast-moving TanStack beta APIs.
+
+Nothing is user-level; everything is committed and versioned with the code.
+
 ## Hardening & operations
 
 - Security headers (`elysia-helmet`, CSP disabled globally — the Scalar docs page needs inline scripts) and a global rate limit (300 req/min/IP, `RateLimit-*` headers) wrap every route; `/health` is exempt from the limit.

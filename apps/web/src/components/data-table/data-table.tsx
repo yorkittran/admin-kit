@@ -35,6 +35,7 @@ interface DataTableProps<TData> {
   getRowId: (row: TData) => string;
   onSearchChange: (value: string) => void;
   searchPlaceholder: string;
+  initialSearch?: string;
   toolbar?: ReactNode;
 }
 
@@ -44,9 +45,10 @@ export function DataTable<TData>({
   getRowId,
   onSearchChange,
   searchPlaceholder,
+  initialSearch,
   toolbar,
 }: DataTableProps<TData>) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch ?? "");
   const [debouncedSearch] = useDebouncedValue(search, { wait: 300 });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -94,6 +96,7 @@ export function DataTable<TData>({
     <div className="grid gap-3">
       <div className="flex items-center gap-2">
         <Input
+          data-slot="datatable-search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={searchPlaceholder}

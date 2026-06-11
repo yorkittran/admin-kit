@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import type { ReactNode } from "react";
+import { CommandPalette } from "@/components/command-palette/command-palette";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
@@ -80,6 +81,7 @@ function AppLayout() {
       <main className="flex-1 p-6">
         <Outlet />
       </main>
+      <CommandPalette isAdmin={isAdmin} />
     </div>
   );
 }

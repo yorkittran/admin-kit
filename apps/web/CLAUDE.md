@@ -6,13 +6,15 @@ File-based routes under `src/routes/`: `_auth/*` = guest-only screens, `_app/*` 
 
 ## Data
 
-- Resource data comes from TanStack DB collections (`src/features/<resource>/collection.ts`, query-db-collection over Eden) consumed with `useLiveQuery` — not raw `useQuery`.
-- All API calls go through the Eden treaty client `src/lib/api.ts`; auth calls through `src/lib/auth-client.ts`. Never `fetch` the API directly.
+- Each resource has a TanStack DB collection in `src/features/<resource>/collection.ts` (`@tanstack/query-db-collection`; its fetch/persist handlers call Eden internally).
+- Reads: `useLiveQuery(...)` over the collection — never raw `useQuery` for resource data.
+- Writes: `collection.insert(row)` / `collection.update(id, draft => {...})` / `collection.delete(id)`, then `await tx.isPersisted.promise` — never `useMutation` + direct API calls (see `src/features/products/form.tsx` and `row-actions.tsx`).
+- Anything that does hit the API directly goes through the Eden treaty client `src/lib/api.ts`; auth calls through `src/lib/auth-client.ts`. Never `fetch` the API directly.
 
 ## UI
 
 - shadcn/ui components: add with `bunx shadcn@latest add <name>`; never hand-write files in `src/components/ui/`.
-- Forms: TanStack Form + the wrappers in `src/components/form/` (`text-field`, `number-field`, `select-field`, `textarea-field`, `field-errors`). Validate with shared TypeBox schemas via the standard-schema bridge.
+- Forms: TanStack Form + the wrappers in `src/components/form/` (`text-field`, `number-field`, `select-field`, `textarea-field` — each already renders `field-errors` internally; don't add it separately). Validate with shared TypeBox schemas via the standard-schema bridge.
 - Tables: the shared DataTable in `src/components/data-table/` (TanStack Table + Virtual, Pacer-debounced search). New list screens reuse it — don't build ad-hoc tables.
 
 ## i18n

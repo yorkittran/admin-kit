@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TextField } from "@/components/form/text-field";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,8 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { m } from "@/paraglide/messages";
 
@@ -70,22 +69,12 @@ function ResetPasswordPage() {
             }}
           >
             {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor={field.name}>{m.auth_new_password()}</Label>
-                <Input
-                  id={field.name}
-                  type="password"
-                  autoComplete="new-password"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && !field.state.meta.isValid && (
-                  <p className="text-destructive text-sm">
-                    {field.state.meta.errors.join(", ")}
-                  </p>
-                )}
-              </div>
+              <TextField
+                field={field}
+                label={m.auth_new_password()}
+                type="password"
+                autoComplete="new-password"
+              />
             )}
           </form.Field>
           <form.Field
@@ -99,22 +88,12 @@ function ResetPasswordPage() {
             }}
           >
             {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor={field.name}>{m.auth_confirm_password()}</Label>
-                <Input
-                  id={field.name}
-                  type="password"
-                  autoComplete="new-password"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && !field.state.meta.isValid && (
-                  <p className="text-destructive text-sm">
-                    {field.state.meta.errors.join(", ")}
-                  </p>
-                )}
-              </div>
+              <TextField
+                field={field}
+                label={m.auth_confirm_password()}
+                type="password"
+                autoComplete="new-password"
+              />
             )}
           </form.Field>
           {error && <p className="text-destructive text-sm">{error}</p>}

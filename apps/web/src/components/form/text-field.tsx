@@ -8,6 +8,7 @@ interface TextFieldProps {
   label: string;
   type?: string;
   placeholder?: string;
+  autoComplete?: string;
 }
 
 export function TextField({
@@ -15,6 +16,7 @@ export function TextField({
   label,
   type = "text",
   placeholder,
+  autoComplete,
 }: TextFieldProps) {
   return (
     <div className="grid gap-2">
@@ -23,6 +25,7 @@ export function TextField({
         id={field.name}
         type={type}
         placeholder={placeholder}
+        autoComplete={autoComplete}
         value={(field.state.value as string | null | undefined) ?? ""}
         onBlur={field.handleBlur}
         onChange={(e) => field.handleChange(e.target.value)}

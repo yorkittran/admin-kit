@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { TextField } from "@/components/form/text-field";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,8 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { m } from "@/paraglide/messages";
 
@@ -74,22 +73,12 @@ function ForgotPasswordPage() {
               }}
             >
               {(field) => (
-                <div className="grid gap-2">
-                  <Label htmlFor={field.name}>{m.common_email()}</Label>
-                  <Input
-                    id={field.name}
-                    type="email"
-                    autoComplete="email"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.isTouched && !field.state.meta.isValid && (
-                    <p className="text-destructive text-sm">
-                      {field.state.meta.errors.join(", ")}
-                    </p>
-                  )}
-                </div>
+                <TextField
+                  field={field}
+                  label={m.common_email()}
+                  type="email"
+                  autoComplete="email"
+                />
               )}
             </form.Field>
             {networkError && (

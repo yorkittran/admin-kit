@@ -2,6 +2,7 @@ import type { Product, ProductInsert, ProductUpdate } from "@admin-kit/shared";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { createCollection } from "@tanstack/react-db";
 import { api } from "@/lib/api";
+import { decodeErrorMessage } from "@/lib/mutation-error";
 import { queryClient } from "@/lib/query-client";
 
 // Drizzle types say Date, but Dates arrive as ISO strings over JSON.
@@ -27,26 +28,18 @@ function toMutationError(error: {
   status: number;
   value: unknown;
 }): ProductMutationError {
-  const value = error.value;
-  if (value && typeof value === "object") {
-    const record = value as Record<string, unknown>;
-    const message =
-      typeof record.summary === "string"
-        ? record.summary
-        : typeof record.message === "string"
-          ? record.message
-          : `Request failed (${error.status})`;
-    // Elysia validation errors carry the failing path, e.g. "/name"
-    const property =
-      typeof record.property === "string"
-        ? record.property.replace(/^\//, "")
-        : undefined;
-    return new ProductMutationError(error.status, message, property);
-  }
-  return new ProductMutationError(
-    error.status,
-    typeof value === "string" ? value : `Request failed (${error.status})`,
-  );
+  const message =
+    decodeErrorMessage(error.value) ?? `Request failed (${error.status})`;
+  const record =
+    error.value && typeof error.value === "object"
+      ? (error.value as Record<string, unknown>)
+      : undefined;
+  // Elysia validation errors carry the failing path, e.g. "/name"
+  const property =
+    record && typeof record.property === "string"
+      ? record.property.replace(/^\//, "")
+      : undefined;
+  return new ProductMutationError(error.status, message, property);
 }
 
 export const productsCollection = createCollection(

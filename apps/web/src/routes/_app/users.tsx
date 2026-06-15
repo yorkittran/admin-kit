@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/table";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import { decodeErrorMessage } from "@/lib/mutation-error";
 import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_app/users")({
@@ -183,13 +184,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
     onSubmit: async ({ value }) => {
       const { data, error } = await api.users.invite.post(value);
       if (error) {
-        const message =
-          typeof error.value === "object" &&
-          error.value !== null &&
-          "message" in error.value
-            ? String(error.value.message)
-            : m.users_invite_error();
-        toast.error(message);
+        toast.error(decodeErrorMessage(error.value) ?? m.users_invite_error());
         return;
       }
       toast.success(m.users_invite_sent({ email: value.email }));

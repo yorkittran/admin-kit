@@ -1,5 +1,6 @@
+import { UserInviteSchema } from "@admin-kit/shared";
 import { APIError } from "better-auth/api";
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { auth } from "../../auth/auth";
 import { betterAuthPlugin } from "../../auth/plugin";
 import { markInvited } from "../../email/invites";
@@ -50,10 +51,6 @@ export const usersModule = new Elysia({ prefix: "/users" })
     },
     {
       role: "admin",
-      body: t.Object({
-        email: t.String({ format: "email" }),
-        name: t.String({ minLength: 1 }),
-        role: t.Union([t.Literal("admin"), t.Literal("member")]),
-      }),
+      body: UserInviteSchema,
     },
   );

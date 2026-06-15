@@ -54,7 +54,7 @@ function ProductsScreen() {
   return (
     <div className="grid gap-4">
       <div>
-        <h1 className="font-semibold text-2xl">{m.products_title()}</h1>
+        <h1 className="font-bold text-2xl">{m.products_title()}</h1>
         <p className="text-muted-foreground text-sm">{m.products_subtitle()}</p>
       </div>
       {isLoading ? (

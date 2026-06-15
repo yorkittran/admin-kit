@@ -1,53 +1,16 @@
 import { UserInviteSchema } from "@admin-kit/shared";
-import { APIError } from "better-auth/api";
 import { Elysia } from "elysia";
-import { auth } from "../../auth/auth";
 import { betterAuthPlugin } from "../../auth/plugin";
-import { markInvited } from "../../email/invites";
-import { env } from "../../lib/env";
+import { inviteUser } from "./service";
 
 export const usersModule = new Elysia({ prefix: "/users" })
   .use(betterAuthPlugin)
   .post(
     "/invite",
     async ({ body, status, request: { headers } }) => {
-      let created: Awaited<ReturnType<typeof auth.api.createUser>>;
-      try {
-        created = await auth.api.createUser({
-          body: {
-            email: body.email,
-            name: body.name,
-            // throwaway — the invitee sets their real password via the emailed link
-            password: crypto.randomUUID(),
-            // cast: InferAdminRolesFromOption defaults to "user"|"admin" but
-            // our runtime config uses "member"|"admin" via defaultRole/adminRoles
-            role: body.role as "user" | "admin",
-          },
-          headers,
-        });
-      } catch (error) {
-        if (error instanceof APIError) {
-          return status(409, { message: error.message });
-        }
-        throw error;
-      }
-      markInvited(body.email);
-      try {
-        await auth.api.requestPasswordReset({
-          body: {
-            email: body.email,
-            redirectTo: `${env.WEB_ORIGIN}/reset-password`,
-          },
-        });
-      } catch {
-        // User exists but the invite email failed. The invite marker stays
-        // set, so a later forgot-password for this email re-sends the invite.
-        return status(502, {
-          message:
-            "User created but the invite email failed to send. Use forgot password to resend it.",
-        });
-      }
-      return { id: created.user.id };
+      const result = await inviteUser(headers, body);
+      if (!result.ok) return status(result.status, { message: result.message });
+      return { id: result.id };
     },
     {
       role: "admin",

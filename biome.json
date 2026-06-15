@@ -8,7 +8,8 @@
       "!**/routeTree.gen.ts",
       "!**/paraglide",
       "!**/drizzle",
-      "!**/dist"
+      "!**/dist",
+      "!**/.claude"
     ]
   },
   "formatter": { "indentStyle": "space" },

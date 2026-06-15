@@ -3,8 +3,6 @@ import { and, count, desc, eq, gte, ilike, lte, type SQL } from "drizzle-orm";
 import { db } from "../db/client";
 import type { AuditAction } from "./audit";
 
-export type { AuditAction };
-
 export interface AuditQuery {
   actor?: string;
   resource?: string;

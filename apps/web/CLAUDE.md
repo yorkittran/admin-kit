@@ -13,8 +13,8 @@ File-based routes under `src/routes/`: `_auth/*` = guest-only screens, `_app/*` 
 
 ## UI
 
-- shadcn/ui components: add with `bunx shadcn@latest add <name>`; never hand-write files in `src/components/ui/`.
-- Forms: TanStack Form + the wrappers in `src/components/form/` (`text-field`, `number-field`, `select-field`, `textarea-field` — each already renders `field-errors` internally; don't add it separately). Validate with shared TypeBox schemas via the standard-schema bridge.
+- Astryx components (`@astryxdesign/core`): look up props/usage with `bunx astryx component <Name>` — never guess the Beta API. Every glyph renders through Astryx `<Icon>` (semantic name, or a lucide component passed as `icon={Comp}`). Charts use recharts (Astryx has none).
+- Forms: TanStack Form + the wrappers in `src/components/form/` (`text-field`, `number-field`, `select-field`, `textarea-field` — each renders errors internally via Astryx Field `status`; don't add error rendering separately). Validate with shared TypeBox schemas via the standard-schema bridge.
 - Tables: the shared DataTable in `src/components/data-table/` (TanStack Table + Virtual, Pacer-debounced search). New list screens reuse it — don't build ad-hoc tables.
 
 ## i18n

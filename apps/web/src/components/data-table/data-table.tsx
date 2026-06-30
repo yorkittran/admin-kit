@@ -6,6 +6,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@astryxdesign/core/Table";
+import { Text } from "@astryxdesign/core/Text";
 import { TextInput } from "@astryxdesign/core/TextInput";
 import { useDebouncedValue } from "@tanstack/react-pacer";
 import {
@@ -134,7 +135,7 @@ export function DataTable<TData>({
         className="h-[32rem] overflow-auto rounded-md border"
       >
         <Table density="compact" hasHover>
-          <thead className="sticky top-0 z-10 bg-background">
+          <thead className="sticky top-0 z-10 bg-surface">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} isHeaderRow>
                 {headerGroup.headers.map((header) => (
@@ -163,9 +164,9 @@ export function DataTable<TData>({
               <TableRow>
                 <TableCell
                   colSpan={visibleColumnCount}
-                  className="h-24 text-center text-muted-foreground"
+                  className="h-24 text-center"
                 >
-                  {m.datatable_no_results()}
+                  <Text color="secondary">{m.datatable_no_results()}</Text>
                 </TableCell>
               </TableRow>
             ) : (
@@ -202,9 +203,9 @@ export function DataTable<TData>({
           </tbody>
         </Table>
       </div>
-      <p className="text-muted-foreground text-sm">
+      <Text type="supporting" color="secondary">
         {m.datatable_selected({ selected: selectedCount, total: rows.length })}
-      </p>
+      </Text>
     </div>
   );
 }

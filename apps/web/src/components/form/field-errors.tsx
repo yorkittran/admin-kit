@@ -15,9 +15,3 @@ export function fieldErrorText(field: AnyFieldApi): string | undefined {
   if (!field.state.meta.isTouched || field.state.meta.isValid) return undefined;
   return field.state.meta.errors.map(message).join(", ");
 }
-
-export function FieldErrors({ field }: { field: AnyFieldApi }) {
-  const text = fieldErrorText(field);
-  if (!text) return null;
-  return <p className="text-destructive text-sm">{text}</p>;
-}

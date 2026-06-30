@@ -49,6 +49,7 @@ export function DataTable<TData>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [colMenuOpen, setColMenuOpen] = useState(false);
 
   const onSearchChangeRef = useRef(onSearchChange);
   useEffect(() => {
@@ -94,7 +95,10 @@ export function DataTable<TData>({
     .map((column) => ({
       label: column.id,
       icon: column.getIsVisible() ? <Icon icon="check" size="sm" /> : undefined,
-      onClick: () => column.toggleVisibility(!column.getIsVisible()),
+      onClick: () => {
+        column.toggleVisibility(!column.getIsVisible());
+        setColMenuOpen(true);
+      },
     }));
 
   return (
@@ -112,6 +116,8 @@ export function DataTable<TData>({
         />
         <div className="ml-auto">
           <DropdownMenu
+            isMenuOpen={colMenuOpen}
+            onOpenChange={setColMenuOpen}
             button={{
               label: m.datatable_columns(),
               variant: "secondary",

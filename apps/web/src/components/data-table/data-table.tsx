@@ -90,6 +90,13 @@ export function DataTable<TData>({
   const visibleColumnCount = table.getVisibleLeafColumns().length;
   const selectedCount = Object.keys(rowSelection).length;
 
+  // Lock the width of columns that declare an explicit `size` (e.g. the select
+  // checkbox and row-action columns). Without this, auto table-layout dumps all
+  // leftover width into the columns with the least content, leaving a wide empty
+  // band beside narrow structural columns.
+  const lockWidth = (size: number | undefined) =>
+    size != null ? { width: size, minWidth: size, maxWidth: size } : undefined;
+
   const columnMenuItems = table
     .getAllLeafColumns()
     .filter((column) => column.getCanHide())
@@ -139,7 +146,10 @@ export function DataTable<TData>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} isHeaderRow>
                 {headerGroup.headers.map((header) => (
-                  <TableHeaderCell key={header.id}>
+                  <TableHeaderCell
+                    key={header.id}
+                    style={lockWidth(header.column.columnDef.size)}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -181,7 +191,10 @@ export function DataTable<TData>({
                     data-state={row.getIsSelected() ? "selected" : undefined}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        style={lockWidth(cell.column.columnDef.size)}
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),

@@ -39,6 +39,7 @@ export const productColumns: ColumnDef<ProductRow>[] = [
         onChange={(checked) => row.toggleSelected(checked)}
       />
     ),
+    size: 48,
     enableSorting: false,
     enableHiding: false,
   },
@@ -97,6 +98,7 @@ export const productColumns: ColumnDef<ProductRow>[] = [
   },
   {
     id: "actions",
+    size: 56,
     cell: ({ row }) => <ProductRowActions product={row.original} />,
     enableSorting: false,
     enableHiding: false,

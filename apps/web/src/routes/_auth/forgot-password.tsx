@@ -1,15 +1,12 @@
+import { Banner } from "@astryxdesign/core/Banner";
+import { Button } from "@astryxdesign/core/Button";
+import { Heading } from "@astryxdesign/core/Heading";
+import { VStack } from "@astryxdesign/core/Layout";
+import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { TextField } from "@/components/form/text-field";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
 import { m } from "@/paraglide/messages";
 
@@ -40,69 +37,75 @@ function ForgotPasswordPage() {
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{m.auth_forgot_password_title()}</CardTitle>
-        <CardDescription>
+    <VStack gap={4}>
+      <VStack gap={1}>
+        <Heading level={2}>{m.auth_forgot_password_title()}</Heading>
+        <Text type="supporting" color="secondary">
           {m.auth_forgot_password_description()}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {sent ? (
-          <div className="grid gap-4">
-            <p className="text-sm">{m.auth_reset_sent_notice()}</p>
-            <Button asChild variant="outline">
-              <Link to="/login" search={{ redirect: undefined }}>
-                {m.auth_back_to_login()}
-              </Link>
-            </Button>
-          </div>
-        ) : (
-          <form
-            className="grid gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit();
+        </Text>
+      </VStack>
+      {sent ? (
+        <VStack gap={4}>
+          <Text type="body" as="p">
+            {m.auth_reset_sent_notice()}
+          </Text>
+          <Link
+            to="/login"
+            search={{ redirect: undefined }}
+            className="text-accent text-sm"
+          >
+            {m.auth_back_to_login()}
+          </Link>
+        </VStack>
+      ) : (
+        <form
+          className="grid gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+        >
+          <form.Field
+            name="email"
+            validators={{
+              onChange: ({ value }) =>
+                value.includes("@") ? undefined : m.common_email_invalid(),
             }}
           >
-            <form.Field
-              name="email"
-              validators={{
-                onChange: ({ value }) =>
-                  value.includes("@") ? undefined : m.common_email_invalid(),
-              }}
-            >
-              {(field) => (
-                <TextField
-                  field={field}
-                  label={m.common_email()}
-                  type="email"
-                  autoComplete="email"
-                />
-              )}
-            </form.Field>
-            {networkError && (
-              <p className="text-destructive text-sm">{networkError}</p>
+            {(field) => (
+              <TextField
+                field={field}
+                label={m.common_email()}
+                type="email"
+                autoComplete="email"
+              />
             )}
-            <form.Subscribe
-              selector={(state) =>
-                [state.canSubmit, state.isSubmitting] as const
-              }
-            >
-              {([canSubmit, isSubmitting]) => (
-                <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                  {isSubmitting ? m.common_sending() : m.auth_send_reset_link()}
-                </Button>
-              )}
-            </form.Subscribe>
-            <Button asChild variant="link" className="justify-self-center">
-              <Link to="/login" search={{ redirect: undefined }}>
-                {m.auth_back_to_login()}
-              </Link>
-            </Button>
-          </form>
-        )}
-      </CardContent>
-    </Card>
+          </form.Field>
+          {networkError && <Banner status="error" title={networkError} />}
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting] as const}
+          >
+            {([canSubmit, isSubmitting]) => (
+              <Button
+                type="submit"
+                label={
+                  isSubmitting ? m.common_sending() : m.auth_send_reset_link()
+                }
+                variant="primary"
+                isDisabled={!canSubmit || isSubmitting}
+                isLoading={isSubmitting}
+              />
+            )}
+          </form.Subscribe>
+          <Link
+            to="/login"
+            search={{ redirect: undefined }}
+            className="text-accent text-sm justify-self-center"
+          >
+            {m.auth_back_to_login()}
+          </Link>
+        </form>
+      )}
+    </VStack>
   );
 }

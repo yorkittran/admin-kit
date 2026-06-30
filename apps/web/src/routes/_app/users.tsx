@@ -2,7 +2,6 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +32,7 @@ import {
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { decodeErrorMessage } from "@/lib/mutation-error";
+import { useToast } from "@/lib/toast";
 import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_app/users")({
@@ -45,6 +45,7 @@ export const Route = createFileRoute("/_app/users")({
 });
 
 function UsersPage() {
+  const toast = useToast();
   const queryClient = useQueryClient();
   const { session } = Route.useRouteContext();
   const { data, isPending } = useQuery({
@@ -173,6 +174,7 @@ function UsersPage() {
 }
 
 function InviteDialog({ onInvited }: { onInvited: () => void }) {
+  const toast = useToast();
   const [open, setOpen] = useState(false);
 
   const form = useForm({

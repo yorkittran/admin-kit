@@ -1,7 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import { TextField } from "@/components/form/text-field";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/lib/toast";
 import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_auth/reset-password")({
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/_auth/reset-password")({
 function ResetPasswordPage() {
   const navigate = useNavigate();
   const { token } = Route.useSearch();
+  const toast = useToast();
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({

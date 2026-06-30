@@ -1,6 +1,5 @@
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/lib/toast";
 import { m } from "@/paraglide/messages";
 import {
   ProductMutationError,
@@ -27,6 +27,7 @@ import {
 import { ProductFormDialog } from "./form";
 
 export function ProductRowActions({ product }: { product: ProductRow }) {
+  const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 

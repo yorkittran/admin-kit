@@ -5,7 +5,6 @@ import {
 } from "@admin-kit/shared";
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { toast } from "sonner";
 import { NumberField } from "@/components/form/number-field";
 import { SelectField } from "@/components/form/select-field";
 import { TextField } from "@/components/form/text-field";
@@ -18,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useToast } from "@/lib/toast";
 import { m } from "@/paraglide/messages";
 import {
   ProductMutationError,
@@ -49,6 +49,7 @@ export function ProductFormDialog({
   open,
   onOpenChange,
 }: ProductFormDialogProps) {
+  const toast = useToast();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm({

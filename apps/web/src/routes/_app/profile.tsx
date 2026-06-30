@@ -1,7 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/lib/toast";
 import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_app/profile")({
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/_app/profile")({
 function ProfilePage() {
   const { session } = Route.useRouteContext();
   const router = useRouter();
+  const toast = useToast();
 
   const nameForm = useForm({
     defaultValues: { name: session.user.name },

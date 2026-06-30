@@ -112,9 +112,11 @@ function ResetPasswordPage() {
         <Link
           to="/login"
           search={{ redirect: undefined }}
-          className="text-accent text-sm justify-self-center"
+          className="justify-self-center"
         >
-          {m.auth_back_to_login()}
+          <Text type="label" color="accent">
+            {m.auth_back_to_login()}
+          </Text>
         </Link>
       </form>
     </VStack>

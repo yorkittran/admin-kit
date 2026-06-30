@@ -4,7 +4,7 @@ import { Heading } from "@astryxdesign/core/Heading";
 import { VStack } from "@astryxdesign/core/Layout";
 import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { TextField } from "@/components/form/text-field";
 import { authClient } from "@/lib/auth-client";
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/_auth/forgot-password")({
 });
 
 function ForgotPasswordPage() {
+  const navigate = useNavigate();
   const [sent, setSent] = useState(false);
   const [networkError, setNetworkError] = useState<string | null>(null);
 
@@ -49,13 +50,13 @@ function ForgotPasswordPage() {
           <Text type="body" as="p">
             {m.auth_reset_sent_notice()}
           </Text>
-          <Link
-            to="/login"
-            search={{ redirect: undefined }}
-            className="text-accent text-sm"
-          >
-            {m.auth_back_to_login()}
-          </Link>
+          <Button
+            variant="secondary"
+            label={m.auth_back_to_login()}
+            onClick={() =>
+              navigate({ to: "/login", search: { redirect: undefined } })
+            }
+          />
         </VStack>
       ) : (
         <form
@@ -100,9 +101,11 @@ function ForgotPasswordPage() {
           <Link
             to="/login"
             search={{ redirect: undefined }}
-            className="text-accent text-sm justify-self-center"
+            className="justify-self-center"
           >
-            {m.auth_back_to_login()}
+            <Text type="label" color="accent">
+              {m.auth_back_to_login()}
+            </Text>
           </Link>
         </form>
       )}

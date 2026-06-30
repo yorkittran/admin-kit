@@ -83,11 +83,10 @@ function LoginPage() {
           )}
         </form.Field>
         {error && <Banner status="error" title={error} />}
-        <Link
-          to="/forgot-password"
-          className="text-accent text-sm justify-self-end"
-        >
-          {m.auth_forgot_password()}
+        <Link to="/forgot-password" className="justify-self-end">
+          <Text type="label" color="accent">
+            {m.auth_forgot_password()}
+          </Text>
         </Link>
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting] as const}

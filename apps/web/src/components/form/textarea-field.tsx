@@ -1,7 +1,6 @@
+import { TextArea } from "@astryxdesign/core/TextArea";
 import type { AnyFieldApi } from "@tanstack/react-form";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { FieldErrors } from "./field-errors";
+import { fieldErrorText } from "./field-errors";
 
 interface TextareaFieldProps {
   field: AnyFieldApi;
@@ -14,17 +13,16 @@ export function TextareaField({
   label,
   placeholder,
 }: TextareaFieldProps) {
+  const errorText = fieldErrorText(field);
   return (
-    <div className="grid gap-2">
-      <Label htmlFor={field.name}>{label}</Label>
-      <Textarea
-        id={field.name}
-        placeholder={placeholder}
-        value={(field.state.value as string | null | undefined) ?? ""}
-        onBlur={field.handleBlur}
-        onChange={(e) => field.handleChange(e.target.value)}
-      />
-      <FieldErrors field={field} />
-    </div>
+    <TextArea
+      id={field.name}
+      label={label}
+      placeholder={placeholder}
+      value={(field.state.value as string | null | undefined) ?? ""}
+      onBlur={field.handleBlur}
+      onChange={(value) => field.handleChange(value)}
+      status={errorText ? { type: "error", message: errorText } : undefined}
+    />
   );
 }

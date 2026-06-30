@@ -1,7 +1,6 @@
+import { TextInput } from "@astryxdesign/core/TextInput";
 import type { AnyFieldApi } from "@tanstack/react-form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { FieldErrors } from "./field-errors";
+import { fieldErrorText } from "./field-errors";
 
 interface TextFieldProps {
   field: AnyFieldApi;
@@ -18,19 +17,20 @@ export function TextField({
   placeholder,
   autoComplete,
 }: TextFieldProps) {
+  const errorText = fieldErrorText(field);
+  // TextInput only accepts 'text' | 'password' | 'email'; fall back to 'text'
+  const safeType = type === "password" || type === "email" ? type : "text";
   return (
-    <div className="grid gap-2">
-      <Label htmlFor={field.name}>{label}</Label>
-      <Input
-        id={field.name}
-        type={type}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        value={(field.state.value as string | null | undefined) ?? ""}
-        onBlur={field.handleBlur}
-        onChange={(e) => field.handleChange(e.target.value)}
-      />
-      <FieldErrors field={field} />
-    </div>
+    <TextInput
+      id={field.name}
+      label={label}
+      type={safeType}
+      placeholder={placeholder}
+      // autoComplete is not in TextInputProps (BaseProps extends HTMLAttributes, not InputHTMLAttributes)
+      value={(field.state.value as string | null | undefined) ?? ""}
+      onBlur={field.handleBlur}
+      onChange={(value) => field.handleChange(value)}
+      status={errorText ? { type: "error", message: errorText } : undefined}
+    />
   );
 }

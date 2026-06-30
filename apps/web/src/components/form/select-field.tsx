@@ -1,13 +1,6 @@
+import { Selector } from "@astryxdesign/core/Selector";
 import type { AnyFieldApi } from "@tanstack/react-form";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { FieldErrors } from "./field-errors";
+import { fieldErrorText } from "./field-errors";
 
 interface SelectFieldProps {
   field: AnyFieldApi;
@@ -22,25 +15,17 @@ export function SelectField({
   options,
   placeholder,
 }: SelectFieldProps) {
+  const errorText = fieldErrorText(field);
   return (
-    <div className="grid gap-2">
-      <Label htmlFor={field.name}>{label}</Label>
-      <Select
-        value={(field.state.value as string | undefined) ?? ""}
-        onValueChange={(value) => field.handleChange(value)}
-      >
-        <SelectTrigger id={field.name} onBlur={field.handleBlur}>
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <FieldErrors field={field} />
-    </div>
+    <Selector
+      id={field.name}
+      label={label}
+      placeholder={placeholder}
+      options={options.map((o) => ({ value: o.value, label: o.label }))}
+      value={(field.state.value as string | undefined) ?? ""}
+      onBlur={field.handleBlur}
+      onChange={(value) => field.handleChange(value)}
+      status={errorText ? { type: "error", message: errorText } : undefined}
+    />
   );
 }

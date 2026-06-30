@@ -1,3 +1,9 @@
+/* Cascade-layer order: Astryx component chrome (astryx-base/astryx-theme) must
+   outrank Tailwind's preflight (base) so resets don't strip button fills and
+   input/card borders — while Tailwind utilities stay last so bg-surface et al.
+   still win where used. A bare @layer statement is allowed before @import. */
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
+
 @import "@astryxdesign/core/reset.css";
 @import "@astryxdesign/core/astryx.css";
 @import "@astryxdesign/theme-neutral/theme.css";

@@ -1,35 +1,30 @@
+import { DropdownMenu } from "@astryxdesign/core/DropdownMenu";
+import { Icon } from "@astryxdesign/core/Icon";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { m } from "@/paraglide/messages";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+  const SunIcon = () => <Sun className="h-5 w-5" />;
+  const MoonIcon = () => <Moon className="h-5 w-5" />;
+  const ThemeIcon = theme === "dark" ? MoonIcon : SunIcon;
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Sun className="h-5 w-5 dark:hidden" />
-          <Moon className="hidden h-5 w-5 dark:block" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          {m.theme_light()}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          {m.theme_dark()}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          {m.theme_system()}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <DropdownMenu
+      button={{
+        label: m.theme_system(),
+        icon: <Icon icon={ThemeIcon} />,
+        variant: "ghost",
+        isIconOnly: true,
+      }}
+      hasChevron={false}
+      items={[
+        { label: m.theme_light(), onClick: () => setTheme("light") },
+        { label: m.theme_dark(), onClick: () => setTheme("dark") },
+        { label: m.theme_system(), onClick: () => setTheme("system") },
+      ]}
+    />
   );
 }

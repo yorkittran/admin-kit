@@ -54,8 +54,7 @@ export function ThemeProvider({
             ? "dark"
             : "light"
           : theme;
-      root.classList.remove("light", "dark");
-      root.classList.add(resolved);
+      root.setAttribute("data-theme", resolved);
     };
 
     applyResolved();

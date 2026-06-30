@@ -66,7 +66,7 @@ function ProfilePage() {
   });
 
   return (
-    <VStack gap={6} width="max-w-lg">
+    <VStack gap={6} className="max-w-lg">
       <Heading level={1}>{m.profile_title()}</Heading>
 
       <Card>

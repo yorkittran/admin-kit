@@ -97,6 +97,7 @@
   "users_invite_send": "Gửi lời mời",
   "users_invite_sent": "Đã gửi lời mời tới {email}",
   "users_invite_error": "Không thể gửi lời mời",
+  "users_search_placeholder": "Tìm người dùng…",
   "profile_title": "Hồ sơ",
   "profile_account": "Tài khoản",
   "profile_password": "Mật khẩu",

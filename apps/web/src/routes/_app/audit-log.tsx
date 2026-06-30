@@ -1,31 +1,26 @@
+import { Badge } from "@astryxdesign/core/Badge";
+import { Banner } from "@astryxdesign/core/Banner";
+import { Button } from "@astryxdesign/core/Button";
+import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
+import { Heading } from "@astryxdesign/core/Heading";
+import {
+  HStack,
+  Layout,
+  LayoutContent,
+  VStack,
+} from "@astryxdesign/core/Layout";
+import { Selector } from "@astryxdesign/core/Selector";
+import {
+  Table,
+  TableCell,
+  TableHeaderCell,
+  TableRow,
+} from "@astryxdesign/core/Table";
+import { Text } from "@astryxdesign/core/Text";
+import { TextInput } from "@astryxdesign/core/TextInput";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { api } from "@/lib/api";
 import { m } from "@/paraglide/messages";
 
@@ -110,201 +105,188 @@ function AuditLogPage() {
   const total = data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
+  const resourceOptions = [
+    { value: ALL, label: m.audit_all_resources() },
+    ...resources.map((r) => ({ value: r, label: r })),
+  ];
+
+  const actionOptions = [
+    { value: ALL, label: m.audit_all_actions() },
+    ...(Object.keys(actionLabels) as AuditAction[]).map((a) => ({
+      value: a,
+      label: actionLabels[a](),
+    })),
+  ];
+
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="font-bold text-2xl">{m.audit_title()}</h1>
+    <VStack gap={4}>
+      <Heading level={1}>{m.audit_title()}</Heading>
 
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="grid gap-1.5">
-          <Label htmlFor="audit-actor">{m.audit_actor()}</Label>
-          <Input
-            id="audit-actor"
-            className="w-56"
-            placeholder={m.audit_filter_actor_placeholder()}
-            value={filters.actor}
-            onChange={(e) => setFilter("actor", e.target.value)}
-          />
-        </div>
-        <div className="grid gap-1.5">
-          <Label>{m.audit_resource()}</Label>
-          <Select
-            value={filters.resource}
-            onValueChange={(v) => setFilter("resource", v)}
-          >
-            <SelectTrigger className="w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{m.audit_all_resources()}</SelectItem>
-              {resources.map((r) => (
-                <SelectItem key={r} value={r}>
-                  {r}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label>{m.audit_action()}</Label>
-          <Select
-            value={filters.action}
-            onValueChange={(v) => setFilter("action", v)}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{m.audit_all_actions()}</SelectItem>
-              {(Object.keys(actionLabels) as AuditAction[]).map((a) => (
-                <SelectItem key={a} value={a}>
-                  {actionLabels[a]()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="audit-from">{m.audit_from()}</Label>
-          <Input
-            id="audit-from"
-            type="date"
-            className="w-40"
-            value={filters.from}
-            onChange={(e) => setFilter("from", e.target.value)}
-          />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="audit-to">{m.audit_to()}</Label>
-          <Input
-            id="audit-to"
-            type="date"
-            className="w-40"
-            value={filters.to}
-            onChange={(e) => setFilter("to", e.target.value)}
-          />
-        </div>
-      </div>
+      <HStack gap={3} wrap="wrap" vAlign="end">
+        <TextInput
+          label={m.audit_actor()}
+          placeholder={m.audit_filter_actor_placeholder()}
+          value={filters.actor}
+          onChange={(value) => setFilter("actor", value)}
+        />
+        <Selector
+          label={m.audit_resource()}
+          options={resourceOptions}
+          value={filters.resource}
+          onChange={(v) => setFilter("resource", v)}
+        />
+        <Selector
+          label={m.audit_action()}
+          options={actionOptions}
+          value={filters.action}
+          onChange={(v) => setFilter("action", v)}
+        />
+        <TextInput
+          label={m.audit_from()}
+          type="text"
+          placeholder="YYYY-MM-DD"
+          value={filters.from}
+          onChange={(value) => setFilter("from", value)}
+        />
+        <TextInput
+          label={m.audit_to()}
+          type="text"
+          placeholder="YYYY-MM-DD"
+          value={filters.to}
+          onChange={(value) => setFilter("to", value)}
+        />
+      </HStack>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{m.audit_time()}</TableHead>
-            <TableHead>{m.audit_actor()}</TableHead>
-            <TableHead>{m.audit_action()}</TableHead>
-            <TableHead>{m.audit_resource()}</TableHead>
-            <TableHead>{m.audit_record()}</TableHead>
-            <TableHead className="text-right">{m.common_actions()}</TableHead>
+      {isError && <Banner status="error" title={m.audit_load_error()} />}
+
+      <Table density="compact" hasHover>
+        <thead>
+          <TableRow isHeaderRow>
+            <TableHeaderCell>{m.audit_time()}</TableHeaderCell>
+            <TableHeaderCell>{m.audit_actor()}</TableHeaderCell>
+            <TableHeaderCell>{m.audit_action()}</TableHeaderCell>
+            <TableHeaderCell>{m.audit_resource()}</TableHeaderCell>
+            <TableHeaderCell>{m.audit_record()}</TableHeaderCell>
+            <TableHeaderCell>{m.common_actions()}</TableHeaderCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
+        </thead>
+        <tbody>
           {isPending && (
             <TableRow>
-              <TableCell colSpan={6} className="text-muted-foreground">
-                {m.common_loading()}
-              </TableCell>
-            </TableRow>
-          )}
-          {isError && (
-            <TableRow>
-              <TableCell colSpan={6} className="text-destructive">
-                {m.audit_load_error()}
+              <TableCell colSpan={6}>
+                <Text color="secondary">{m.common_loading()}</Text>
               </TableCell>
             </TableRow>
           )}
           {!isPending && !isError && (data?.rows.length ?? 0) === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-muted-foreground">
-                {m.audit_no_rows()}
+              <TableCell colSpan={6}>
+                <Text color="secondary">{m.audit_no_rows()}</Text>
               </TableCell>
             </TableRow>
           )}
           {data?.rows.map((row) => (
             <TableRow key={row.id}>
-              <TableCell className="whitespace-nowrap">
-                {new Date(row.createdAt).toLocaleString()}
+              <TableCell>
+                <Text type="body" textWrap="nowrap">
+                  {new Date(row.createdAt).toLocaleString()}
+                </Text>
               </TableCell>
               <TableCell>{row.actorEmail ?? row.actorId}</TableCell>
               <TableCell>
                 <Badge
-                  variant={
-                    row.action === "delete" ? "destructive" : "secondary"
-                  }
-                >
-                  {actionLabels[row.action]()}
-                </Badge>
+                  variant={row.action === "delete" ? "error" : "neutral"}
+                  label={actionLabels[row.action]()}
+                />
               </TableCell>
               <TableCell>{row.resource}</TableCell>
-              <TableCell className="font-mono text-xs" title={row.resourceId}>
-                …{row.resourceId.slice(-8)}
+              <TableCell>
+                <span className="font-mono text-xs" title={row.resourceId}>
+                  …{row.resourceId.slice(-8)}
+                </span>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell>
                 <Button
                   variant="ghost"
                   size="sm"
+                  label={m.audit_view()}
                   onClick={() =>
                     setDetail({ before: row.before, after: row.after })
                   }
-                >
-                  {m.audit_view()}
-                </Button>
+                />
               </TableCell>
             </TableRow>
           ))}
-        </TableBody>
+        </tbody>
       </Table>
 
-      <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">
+      <HStack justify="between" vAlign="center">
+        <Text type="supporting" color="secondary">
           {m.audit_page_info({
             page: String(page),
             pages: String(pages),
             total: String(total),
           })}
-        </p>
-        <div className="flex gap-2">
+        </Text>
+        <HStack gap={2}>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
-            disabled={page <= 1}
+            label={m.audit_prev()}
+            isDisabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-          >
-            {m.audit_prev()}
-          </Button>
+          />
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
-            disabled={page >= pages}
+            label={m.audit_next()}
+            isDisabled={page >= pages}
             onClick={() => setPage((p) => p + 1)}
-          >
-            {m.audit_next()}
-          </Button>
-        </div>
-      </div>
+          />
+        </HStack>
+      </HStack>
 
       <Dialog
-        open={detail !== null}
+        isOpen={detail !== null}
         onOpenChange={(o) => !o && setDetail(null)}
+        width={700}
       >
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{m.audit_diff_title()}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <p className="mb-1 font-medium text-sm">{m.audit_before()}</p>
-              <pre className="max-h-80 overflow-auto rounded-md bg-muted p-3 text-xs">
-                {detail?.before ? JSON.stringify(detail.before, null, 2) : "—"}
-              </pre>
-            </div>
-            <div>
-              <p className="mb-1 font-medium text-sm">{m.audit_after()}</p>
-              <pre className="max-h-80 overflow-auto rounded-md bg-muted p-3 text-xs">
-                {detail?.after ? JSON.stringify(detail.after, null, 2) : "—"}
-              </pre>
-            </div>
-          </div>
-        </DialogContent>
+        <Layout
+          height="auto"
+          header={
+            <DialogHeader
+              title={m.audit_diff_title()}
+              onOpenChange={(o) => !o && setDetail(null)}
+            />
+          }
+          content={
+            <LayoutContent>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <VStack gap={1}>
+                  <Text type="label" weight="medium">
+                    {m.audit_before()}
+                  </Text>
+                  <pre className="max-h-80 overflow-auto rounded-md bg-muted p-3 text-xs">
+                    {detail?.before
+                      ? JSON.stringify(detail.before, null, 2)
+                      : "—"}
+                  </pre>
+                </VStack>
+                <VStack gap={1}>
+                  <Text type="label" weight="medium">
+                    {m.audit_after()}
+                  </Text>
+                  <pre className="max-h-80 overflow-auto rounded-md bg-muted p-3 text-xs">
+                    {detail?.after
+                      ? JSON.stringify(detail.after, null, 2)
+                      : "—"}
+                  </pre>
+                </VStack>
+              </div>
+            </LayoutContent>
+          }
+        />
       </Dialog>
-    </div>
+    </VStack>
   );
 }

@@ -1,34 +1,26 @@
+import { Badge } from "@astryxdesign/core/Badge";
+import { Banner } from "@astryxdesign/core/Banner";
+import { Button } from "@astryxdesign/core/Button";
+import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
+import { Heading } from "@astryxdesign/core/Heading";
+import {
+  HStack,
+  Layout,
+  LayoutContent,
+  LayoutFooter,
+  VStack,
+} from "@astryxdesign/core/Layout";
+import { Selector } from "@astryxdesign/core/Selector";
+import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import type { ColumnDef } from "@tanstack/react-table";
+import { UserPlus } from "lucide-react";
+import { useCallback, useState } from "react";
+import { DataTable } from "@/components/data-table/data-table";
+import { SelectField } from "@/components/form/select-field";
+import { TextField } from "@/components/form/text-field";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { decodeErrorMessage } from "@/lib/mutation-error";
@@ -44,10 +36,25 @@ export const Route = createFileRoute("/_app/users")({
   component: UsersPage,
 });
 
+type UserRow = {
+  id: string;
+  name: string;
+  email: string;
+  role?: string | null;
+  banned?: boolean | null;
+};
+
+const ROLE_OPTIONS = [
+  { value: "admin", label: m.users_role_admin() },
+  { value: "member", label: m.users_role_member() },
+] as const;
+
 function UsersPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { session } = Route.useRouteContext();
+  const [search, setSearch] = useState("");
+
   const { data, isPending } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
@@ -99,83 +106,102 @@ function UsersPage() {
     refresh();
   }
 
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+  }, []);
+
+  const allUsers: UserRow[] = data?.users ?? [];
+  const filteredUsers = search
+    ? allUsers.filter(
+        (u) =>
+          u.name.toLowerCase().includes(search.toLowerCase()) ||
+          u.email.toLowerCase().includes(search.toLowerCase()),
+      )
+    : allUsers;
+
+  const columns: ColumnDef<UserRow>[] = [
+    {
+      accessorKey: "name",
+      header: m.common_name(),
+      cell: ({ row }) => (
+        <Text type="body" weight="medium">
+          {row.original.name}
+        </Text>
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: m.common_email(),
+    },
+    {
+      accessorKey: "role",
+      header: m.users_role(),
+      cell: ({ row }) => (
+        <Selector
+          label={m.users_role()}
+          isLabelHidden
+          size="sm"
+          options={[...ROLE_OPTIONS]}
+          value={row.original.role ?? "member"}
+          isDisabled={row.original.id === session.user.id}
+          onChange={(role) =>
+            changeRole(row.original.id, role as "admin" | "member")
+          }
+        />
+      ),
+    },
+    {
+      accessorKey: "banned",
+      header: m.common_status(),
+      cell: ({ row }) =>
+        row.original.banned ? (
+          <Badge variant="error" label={m.users_banned()} />
+        ) : (
+          <Badge variant="success" label={m.users_active()} />
+        ),
+    },
+    {
+      id: "actions",
+      header: m.common_actions(),
+      cell: ({ row }) => (
+        <HStack hAlign="end">
+          <Button
+            variant="secondary"
+            size="sm"
+            label={row.original.banned ? m.users_unban() : m.users_ban()}
+            isDisabled={row.original.id === session.user.id}
+            onClick={() => toggleBan(row.original)}
+          />
+        </HStack>
+      ),
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="font-bold text-2xl">{m.users_title()}</h1>
+    <VStack gap={4}>
+      <HStack justify="between" vAlign="center">
+        <Heading level={1}>{m.users_title()}</Heading>
         <InviteDialog onInvited={refresh} />
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{m.common_name()}</TableHead>
-            <TableHead>{m.common_email()}</TableHead>
-            <TableHead>{m.users_role()}</TableHead>
-            <TableHead>{m.common_status()}</TableHead>
-            <TableHead className="text-right">{m.common_actions()}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isPending && (
-            <TableRow>
-              <TableCell colSpan={5} className="text-muted-foreground">
-                {m.common_loading()}
-              </TableCell>
-            </TableRow>
-          )}
-          {data?.users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell className="font-medium">{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                <Select
-                  value={user.role ?? "member"}
-                  disabled={user.id === session.user.id}
-                  onValueChange={(role) =>
-                    changeRole(user.id, role as "admin" | "member")
-                  }
-                >
-                  <SelectTrigger className="w-28">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">
-                      {m.users_role_admin()}
-                    </SelectItem>
-                    <SelectItem value="member">
-                      {m.users_role_member()}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              <TableCell>
-                {user.banned ? (
-                  <Badge variant="destructive">{m.users_banned()}</Badge>
-                ) : (
-                  <Badge variant="secondary">{m.users_active()}</Badge>
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={user.id === session.user.id}
-                  onClick={() => toggleBan(user)}
-                >
-                  {user.banned ? m.users_unban() : m.users_ban()}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+      </HStack>
+      {isPending ? (
+        <Text color="secondary">{m.common_loading()}</Text>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={filteredUsers}
+          getRowId={(u) => u.id}
+          onSearchChange={handleSearchChange}
+          searchPlaceholder={m.users_search_placeholder()}
+        />
+      )}
+    </VStack>
   );
 }
 
 function InviteDialog({ onInvited }: { onInvited: () => void }) {
   const toast = useToast();
   const [open, setOpen] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -184,9 +210,12 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
       role: "member" as "admin" | "member",
     },
     onSubmit: async ({ value }) => {
+      setServerError(null);
       const { data, error } = await api.users.invite.post(value);
       if (error) {
-        toast.error(decodeErrorMessage(error.value) ?? m.users_invite_error());
+        setServerError(
+          decodeErrorMessage(error.value) ?? m.users_invite_error(),
+        );
         return;
       }
       toast.success(m.users_invite_sent({ email: value.email }));
@@ -197,108 +226,122 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
     },
   });
 
+  function handleOpenChange(next: boolean) {
+    if (!next) {
+      form.reset();
+      setServerError(null);
+    }
+    setOpen(next);
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>{m.users_invite()}</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{m.users_invite()}</DialogTitle>
-          <DialogDescription>{m.users_invite_description()}</DialogDescription>
-        </DialogHeader>
+    <>
+      <Button
+        label={m.users_invite()}
+        variant="primary"
+        icon={<UserPlus size={16} />}
+        onClick={() => setOpen(true)}
+      />
+      <Dialog
+        isOpen={open}
+        onOpenChange={handleOpenChange}
+        purpose="form"
+        width={400}
+      >
         <form
-          className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
         >
-          <form.Field
-            name="email"
-            validators={{
-              onChange: ({ value }) =>
-                value.includes("@") ? undefined : m.common_email_invalid(),
-            }}
-          >
-            {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor="invite-email">{m.common_email()}</Label>
-                <Input
-                  id="invite-email"
-                  type="email"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && !field.state.meta.isValid && (
-                  <p className="text-destructive text-sm">
-                    {field.state.meta.errors.join(", ")}
-                  </p>
-                )}
-              </div>
-            )}
-          </form.Field>
-          <form.Field
-            name="name"
-            validators={{
-              onChange: ({ value }) =>
-                value.trim().length > 0 ? undefined : m.common_name_required(),
-            }}
-          >
-            {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor="invite-name">{m.common_name()}</Label>
-                <Input
-                  id="invite-name"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && !field.state.meta.isValid && (
-                  <p className="text-destructive text-sm">
-                    {field.state.meta.errors.join(", ")}
-                  </p>
-                )}
-              </div>
-            )}
-          </form.Field>
-          <form.Field name="role">
-            {(field) => (
-              <div className="grid gap-2">
-                <Label>{m.users_role()}</Label>
-                <Select
-                  value={field.state.value}
-                  onValueChange={(value) =>
-                    field.handleChange(value as "admin" | "member")
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="member">
-                      {m.users_role_member()}
-                    </SelectItem>
-                    <SelectItem value="admin">
-                      {m.users_role_admin()}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </form.Field>
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting] as const}
-          >
-            {([canSubmit, isSubmitting]) => (
-              <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                {isSubmitting ? m.common_sending() : m.users_invite_send()}
-              </Button>
-            )}
-          </form.Subscribe>
+          <Layout
+            height="auto"
+            header={
+              <DialogHeader
+                title={m.users_invite()}
+                subtitle={m.users_invite_description()}
+                onOpenChange={handleOpenChange}
+              />
+            }
+            content={
+              <LayoutContent>
+                <VStack gap={4}>
+                  <form.Field
+                    name="email"
+                    validators={{
+                      onChange: ({ value }) =>
+                        value.includes("@")
+                          ? undefined
+                          : m.common_email_invalid(),
+                    }}
+                  >
+                    {(field) => (
+                      <TextField
+                        field={field}
+                        label={m.common_email()}
+                        type="email"
+                      />
+                    )}
+                  </form.Field>
+                  <form.Field
+                    name="name"
+                    validators={{
+                      onChange: ({ value }) =>
+                        value.trim().length > 0
+                          ? undefined
+                          : m.common_name_required(),
+                    }}
+                  >
+                    {(field) => (
+                      <TextField field={field} label={m.common_name()} />
+                    )}
+                  </form.Field>
+                  <form.Field name="role">
+                    {(field) => (
+                      <SelectField
+                        field={field}
+                        label={m.users_role()}
+                        options={[...ROLE_OPTIONS]}
+                      />
+                    )}
+                  </form.Field>
+                  {serverError && <Banner status="error" title={serverError} />}
+                </VStack>
+              </LayoutContent>
+            }
+            footer={
+              <LayoutFooter>
+                <HStack gap={2} hAlign="end">
+                  <Button
+                    label={m.common_cancel()}
+                    variant="secondary"
+                    onClick={() => handleOpenChange(false)}
+                  />
+                  <form.Subscribe
+                    selector={(state) =>
+                      [state.canSubmit, state.isSubmitting] as const
+                    }
+                  >
+                    {([canSubmit, isSubmitting]) => (
+                      <Button
+                        type="submit"
+                        label={
+                          isSubmitting
+                            ? m.common_sending()
+                            : m.users_invite_send()
+                        }
+                        variant="primary"
+                        isDisabled={!canSubmit || isSubmitting}
+                        isLoading={isSubmitting}
+                      />
+                    )}
+                  </form.Subscribe>
+                </HStack>
+              </LayoutFooter>
+            }
+          />
         </form>
-      </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 }

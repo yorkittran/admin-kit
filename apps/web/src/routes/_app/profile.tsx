@@ -1,18 +1,15 @@
+import { Banner } from "@astryxdesign/core/Banner";
+import { Button } from "@astryxdesign/core/Button";
+import { Card } from "@astryxdesign/core/Card";
+import { Heading } from "@astryxdesign/core/Heading";
+import { VStack } from "@astryxdesign/core/Layout";
+import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { TextField } from "@/components/form/text-field";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { useToast } from "@/lib/toast";
 import { m } from "@/paraglide/messages";
@@ -69,15 +66,17 @@ function ProfilePage() {
   });
 
   return (
-    <div className="flex max-w-lg flex-col gap-6">
-      <h1 className="font-bold text-2xl">{m.profile_title()}</h1>
+    <VStack gap={6} width="max-w-lg">
+      <Heading level={1}>{m.profile_title()}</Heading>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{m.profile_account()}</CardTitle>
-          <CardDescription>{session.user.email}</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <VStack gap={4}>
+          <VStack gap={1}>
+            <Heading level={2}>{m.profile_account()}</Heading>
+            <Text type="supporting" color="secondary">
+              {session.user.email}
+            </Text>
+          </VStack>
           <form
             className="grid gap-4"
             onSubmit={(e) => {
@@ -94,22 +93,7 @@ function ProfilePage() {
                     : m.common_name_required(),
               }}
             >
-              {(field) => (
-                <div className="grid gap-2">
-                  <Label htmlFor={field.name}>{m.common_name()}</Label>
-                  <Input
-                    id={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.isTouched && !field.state.meta.isValid && (
-                    <p className="text-destructive text-sm">
-                      {field.state.meta.errors.join(", ")}
-                    </p>
-                  )}
-                </div>
-              )}
+              {(field) => <TextField field={field} label={m.common_name()} />}
             </nameForm.Field>
             <nameForm.Subscribe
               selector={(state) =>
@@ -119,23 +103,25 @@ function ProfilePage() {
               {([canSubmit, isSubmitting]) => (
                 <Button
                   type="submit"
-                  disabled={!canSubmit || isSubmitting}
-                  className="justify-self-start"
-                >
-                  {isSubmitting ? m.common_saving() : m.common_save()}
-                </Button>
+                  label={isSubmitting ? m.common_saving() : m.common_save()}
+                  variant="primary"
+                  isDisabled={!canSubmit || isSubmitting}
+                  isLoading={isSubmitting}
+                />
               )}
             </nameForm.Subscribe>
           </form>
-        </CardContent>
+        </VStack>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{m.profile_password()}</CardTitle>
-          <CardDescription>{m.profile_password_hint()}</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <VStack gap={4}>
+          <VStack gap={1}>
+            <Heading level={2}>{m.profile_password()}</Heading>
+            <Text type="supporting" color="secondary">
+              {m.profile_password_hint()}
+            </Text>
+          </VStack>
           <form
             className="grid gap-4"
             onSubmit={(e) => {
@@ -145,19 +131,12 @@ function ProfilePage() {
           >
             <passwordForm.Field name="currentPassword">
               {(field) => (
-                <div className="grid gap-2">
-                  <Label htmlFor={field.name}>
-                    {m.profile_current_password()}
-                  </Label>
-                  <Input
-                    id={field.name}
-                    type="password"
-                    autoComplete="current-password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                </div>
+                <TextField
+                  field={field}
+                  label={m.profile_current_password()}
+                  type="password"
+                  autoComplete="current-password"
+                />
               )}
             </passwordForm.Field>
             <passwordForm.Field
@@ -168,22 +147,12 @@ function ProfilePage() {
               }}
             >
               {(field) => (
-                <div className="grid gap-2">
-                  <Label htmlFor={field.name}>{m.profile_new_password()}</Label>
-                  <Input
-                    id={field.name}
-                    type="password"
-                    autoComplete="new-password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.isTouched && !field.state.meta.isValid && (
-                    <p className="text-destructive text-sm">
-                      {field.state.meta.errors.join(", ")}
-                    </p>
-                  )}
-                </div>
+                <TextField
+                  field={field}
+                  label={m.profile_new_password()}
+                  type="password"
+                  autoComplete="new-password"
+                />
               )}
             </passwordForm.Field>
             <passwordForm.Field
@@ -197,29 +166,15 @@ function ProfilePage() {
               }}
             >
               {(field) => (
-                <div className="grid gap-2">
-                  <Label htmlFor={field.name}>
-                    {m.profile_confirm_password()}
-                  </Label>
-                  <Input
-                    id={field.name}
-                    type="password"
-                    autoComplete="new-password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.isTouched && !field.state.meta.isValid && (
-                    <p className="text-destructive text-sm">
-                      {field.state.meta.errors.join(", ")}
-                    </p>
-                  )}
-                </div>
+                <TextField
+                  field={field}
+                  label={m.profile_confirm_password()}
+                  type="password"
+                  autoComplete="new-password"
+                />
               )}
             </passwordForm.Field>
-            {passwordError && (
-              <p className="text-destructive text-sm">{passwordError}</p>
-            )}
+            {passwordError && <Banner status="error" title={passwordError} />}
             <passwordForm.Subscribe
               selector={(state) =>
                 [state.canSubmit, state.isSubmitting] as const
@@ -228,38 +183,44 @@ function ProfilePage() {
               {([canSubmit, isSubmitting]) => (
                 <Button
                   type="submit"
-                  disabled={!canSubmit || isSubmitting}
-                  className="justify-self-start"
-                >
-                  {isSubmitting
-                    ? m.common_saving()
-                    : m.profile_change_password()}
-                </Button>
+                  label={
+                    isSubmitting
+                      ? m.common_saving()
+                      : m.profile_change_password()
+                  }
+                  variant="primary"
+                  isDisabled={!canSubmit || isSubmitting}
+                  isLoading={isSubmitting}
+                />
               )}
             </passwordForm.Subscribe>
           </form>
-        </CardContent>
+        </VStack>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{m.profile_appearance()}</CardTitle>
-          <CardDescription>{m.profile_appearance_hint()}</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <VStack gap={4}>
+          <VStack gap={1}>
+            <Heading level={2}>{m.profile_appearance()}</Heading>
+            <Text type="supporting" color="secondary">
+              {m.profile_appearance_hint()}
+            </Text>
+          </VStack>
           <ModeToggle />
-        </CardContent>
+        </VStack>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{m.profile_language()}</CardTitle>
-          <CardDescription>{m.profile_language_hint()}</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <VStack gap={4}>
+          <VStack gap={1}>
+            <Heading level={2}>{m.profile_language()}</Heading>
+            <Text type="supporting" color="secondary">
+              {m.profile_language_hint()}
+            </Text>
+          </VStack>
           <LocaleSwitcher />
-        </CardContent>
+        </VStack>
       </Card>
-    </div>
+    </VStack>
   );
 }

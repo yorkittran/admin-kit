@@ -1,13 +1,16 @@
+import { Card } from "@astryxdesign/core/Card";
+import { Heading } from "@astryxdesign/core/Heading";
+import { VStack } from "@astryxdesign/core/Layout";
+import { Text } from "@astryxdesign/core/Text";
 import { useLiveQuery } from "@tanstack/react-db";
 import { createFileRoute } from "@tanstack/react-router";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@/components/chart";
 import { productsCollection } from "@/features/products/collection";
 import { m } from "@/paraglide/messages";
 
@@ -53,14 +56,14 @@ function lastThirtyDays(createdDates: Date[]) {
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="font-medium text-muted-foreground text-sm">
+      <VStack gap={1}>
+        <Text type="supporting" color="secondary">
           {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="font-bold text-3xl">{value}</p>
-      </CardContent>
+        </Text>
+        <Text type="large" weight="bold">
+          {value}
+        </Text>
+      </VStack>
     </Card>
   );
 }
@@ -97,12 +100,12 @@ function Dashboard() {
   } satisfies ChartConfig;
 
   if (isLoading) {
-    return <p className="text-muted-foreground">{m.common_loading()}</p>;
+    return <Text color="secondary">{m.common_loading()}</Text>;
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="font-bold text-2xl">{m.dashboard_title()}</h1>
+    <VStack gap={6}>
+      <Heading level={1}>{m.dashboard_title()}</Heading>
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           label={m.dashboard_total_products()}
@@ -113,12 +116,8 @@ function Dashboard() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {m.dashboard_created_30d()}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+          <VStack gap={3}>
+            <Heading level={2}>{m.dashboard_created_30d()}</Heading>
             <ChartContainer config={lineConfig} className="h-64 w-full">
               <LineChart data={lineData} accessibilityLayer>
                 <CartesianGrid vertical={false} />
@@ -133,15 +132,11 @@ function Dashboard() {
                 />
               </LineChart>
             </ChartContainer>
-          </CardContent>
+          </VStack>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {m.dashboard_by_status()}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+          <VStack gap={3}>
+            <Heading level={2}>{m.dashboard_by_status()}</Heading>
             <ChartContainer config={barConfig} className="h-64 w-full">
               <BarChart data={barData} accessibilityLayer>
                 <CartesianGrid vertical={false} />
@@ -150,9 +145,9 @@ function Dashboard() {
                 <Bar dataKey="count" radius={4} />
               </BarChart>
             </ChartContainer>
-          </CardContent>
+          </VStack>
         </Card>
       </div>
-    </div>
+    </VStack>
   );
 }

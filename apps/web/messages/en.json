@@ -97,6 +97,7 @@
   "users_invite_send": "Send invite",
   "users_invite_sent": "Invite sent to {email}",
   "users_invite_error": "Could not send invite",
+  "users_search_placeholder": "Search users…",
   "profile_title": "Profile",
   "profile_account": "Account",
   "profile_password": "Password",

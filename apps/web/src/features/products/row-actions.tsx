@@ -1,22 +1,16 @@
-import { MoreHorizontal } from "lucide-react";
+import { Button } from "@astryxdesign/core/Button";
+import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
+import { DropdownMenu } from "@astryxdesign/core/DropdownMenu";
+import { Icon } from "@astryxdesign/core/Icon";
+import {
+  HStack,
+  Layout,
+  LayoutContent,
+  LayoutFooter,
+} from "@astryxdesign/core/Layout";
+import { Text } from "@astryxdesign/core/Text";
+import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/lib/toast";
 import { m } from "@/paraglide/messages";
 import {
@@ -48,28 +42,27 @@ export function ProductRowActions({ product }: { product: ProductRow }) {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={m.products_actions_for({ name: product.name })}
-          >
-            <MoreHorizontal className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setEditOpen(true)}>
-            {m.common_edit()}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={() => setConfirmOpen(true)}
-          >
-            {m.common_delete()}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <DropdownMenu
+        button={{
+          label: m.products_actions_for({ name: product.name }),
+          icon: <Icon icon="moreHorizontal" />,
+          variant: "ghost",
+          isIconOnly: true,
+        }}
+        hasChevron={false}
+        items={[
+          {
+            label: m.common_edit(),
+            icon: <Icon icon={Pencil} size="sm" />,
+            onClick: () => setEditOpen(true),
+          },
+          {
+            label: m.common_delete(),
+            icon: <Icon icon={Trash2} size="sm" />,
+            onClick: () => setConfirmOpen(true),
+          },
+        ]}
+      />
       {editOpen && (
         <ProductFormDialog
           product={product}
@@ -77,24 +70,40 @@ export function ProductRowActions({ product }: { product: ProductRow }) {
           onOpenChange={setEditOpen}
         />
       )}
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {m.products_delete_confirm_title()}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {m.products_delete_confirm_body({ name: product.name })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{m.common_cancel()}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              {m.common_delete()}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog isOpen={confirmOpen} onOpenChange={setConfirmOpen} width={400}>
+        <Layout
+          height="auto"
+          header={
+            <DialogHeader
+              title={m.products_delete_confirm_title()}
+              onOpenChange={setConfirmOpen}
+            />
+          }
+          content={
+            <LayoutContent>
+              <Text type="body">
+                {m.products_delete_confirm_body({ name: product.name })}
+              </Text>
+            </LayoutContent>
+          }
+          footer={
+            <LayoutFooter>
+              <HStack gap={2} hAlign="end">
+                <Button
+                  label={m.common_cancel()}
+                  variant="secondary"
+                  onClick={() => setConfirmOpen(false)}
+                />
+                <Button
+                  label={m.common_delete()}
+                  variant="destructive"
+                  clickAction={handleDelete}
+                />
+              </HStack>
+            </LayoutFooter>
+          }
+        />
+      </Dialog>
     </>
   );
 }

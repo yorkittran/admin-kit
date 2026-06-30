@@ -1,7 +1,7 @@
+import { Badge } from "@astryxdesign/core/Badge";
+import { CheckboxInput } from "@astryxdesign/core/CheckboxInput";
 import type { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "@/components/data-table/sortable-header";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { m } from "@/paraglide/messages";
 import type { ProductRow } from "./collection";
 import { ProductRowActions } from "./row-actions";
@@ -17,20 +17,25 @@ export const productColumns: ColumnDef<ProductRow>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllRowsSelected() ||
-          (table.getIsSomeRowsSelected() && "indeterminate")
+      <CheckboxInput
+        label={m.datatable_select_all()}
+        isLabelHidden
+        value={
+          table.getIsAllRowsSelected()
+            ? true
+            : table.getIsSomeRowsSelected()
+              ? "indeterminate"
+              : false
         }
-        onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
-        aria-label={m.datatable_select_all()}
+        onChange={(checked) => table.toggleAllRowsSelected(checked)}
       />
     ),
     cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label={m.datatable_select_row()}
+      <CheckboxInput
+        label={m.datatable_select_row()}
+        isLabelHidden
+        value={row.getIsSelected()}
+        onChange={(checked) => row.toggleSelected(checked)}
       />
     ),
     enableSorting: false,
@@ -47,7 +52,7 @@ export const productColumns: ColumnDef<ProductRow>[] = [
     accessorKey: "description",
     header: () => m.products_description_label(),
     cell: ({ row }) => (
-      <span className="block max-w-64 truncate text-muted-foreground">
+      <span className="block max-w-64 truncate text-secondary">
         {row.original.description ?? "—"}
       </span>
     ),
@@ -66,12 +71,13 @@ export const productColumns: ColumnDef<ProductRow>[] = [
     header: () => m.products_status_label(),
     cell: ({ row }) => (
       <Badge
-        variant={row.original.status === "active" ? "default" : "secondary"}
-      >
-        {row.original.status === "active"
-          ? m.products_status_active()
-          : m.products_status_archived()}
-      </Badge>
+        variant={row.original.status === "active" ? "success" : "neutral"}
+        label={
+          row.original.status === "active"
+            ? m.products_status_active()
+            : m.products_status_archived()
+        }
+      />
     ),
   },
   {

@@ -3,20 +3,22 @@ import {
   type StandardSchema,
   toStandardSchema,
 } from "@admin-kit/shared";
+import { Button } from "@astryxdesign/core/Button";
+import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
+import {
+  HStack,
+  Layout,
+  LayoutContent,
+  LayoutFooter,
+  VStack,
+} from "@astryxdesign/core/Layout";
+import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { NumberField } from "@/components/form/number-field";
 import { SelectField } from "@/components/form/select-field";
 import { TextField } from "@/components/form/text-field";
 import { TextareaField } from "@/components/form/textarea-field";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useToast } from "@/lib/toast";
 import { m } from "@/paraglide/messages";
 import {
@@ -127,79 +129,110 @@ export function ProductFormDialog({
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            {product ? m.products_edit_title() : m.products_create_title()}
-          </DialogTitle>
-          <DialogDescription>
-            {product
-              ? m.products_edit_description()
-              : m.products_create_description()}
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          className="grid gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-        >
-          <form.Field name="name">
-            {(field) => (
-              <TextField field={field} label={m.products_name_label()} />
-            )}
-          </form.Field>
-          <form.Field name="description">
-            {(field) => (
-              <TextareaField
-                field={field}
-                label={m.products_description_label()}
-              />
-            )}
-          </form.Field>
-          <form.Field name="priceCents">
-            {(field) => (
-              <NumberField
-                field={field}
-                label={m.products_price_label()}
-                min={0}
-                step={1}
-              />
-            )}
-          </form.Field>
-          <form.Field name="status">
-            {(field) => (
-              <SelectField
-                field={field}
-                label={m.products_status_label()}
-                options={STATUS_OPTIONS}
-              />
-            )}
-          </form.Field>
-          {serverError && (
-            <p className="text-destructive text-sm">{serverError}</p>
-          )}
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting] as const}
-          >
-            {([canSubmit, isSubmitting]) => (
-              <Button
-                type="submit"
-                disabled={!canSubmit || isSubmitting}
-                className="justify-self-end"
-              >
-                {isSubmitting
-                  ? m.common_saving()
-                  : product
-                    ? m.products_save_changes()
-                    : m.products_create_title()}
-              </Button>
-            )}
-          </form.Subscribe>
-        </form>
-      </DialogContent>
+    <Dialog
+      isOpen={open}
+      onOpenChange={onOpenChange}
+      purpose="form"
+      width={480}
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <Layout
+          height="auto"
+          header={
+            <DialogHeader
+              title={
+                product ? m.products_edit_title() : m.products_create_title()
+              }
+              subtitle={
+                product
+                  ? m.products_edit_description()
+                  : m.products_create_description()
+              }
+              onOpenChange={onOpenChange}
+            />
+          }
+          content={
+            <LayoutContent>
+              <VStack gap={4}>
+                <form.Field name="name">
+                  {(field) => (
+                    <TextField field={field} label={m.products_name_label()} />
+                  )}
+                </form.Field>
+                <form.Field name="description">
+                  {(field) => (
+                    <TextareaField
+                      field={field}
+                      label={m.products_description_label()}
+                    />
+                  )}
+                </form.Field>
+                <form.Field name="priceCents">
+                  {(field) => (
+                    <NumberField
+                      field={field}
+                      label={m.products_price_label()}
+                      min={0}
+                      step={1}
+                    />
+                  )}
+                </form.Field>
+                <form.Field name="status">
+                  {(field) => (
+                    <SelectField
+                      field={field}
+                      label={m.products_status_label()}
+                      options={STATUS_OPTIONS}
+                    />
+                  )}
+                </form.Field>
+                {serverError && (
+                  <Text type="body" color="accent">
+                    {serverError}
+                  </Text>
+                )}
+              </VStack>
+            </LayoutContent>
+          }
+          footer={
+            <LayoutFooter>
+              <HStack gap={2} hAlign="end">
+                <Button
+                  label={m.common_cancel()}
+                  variant="secondary"
+                  onClick={() => onOpenChange(false)}
+                />
+                <form.Subscribe
+                  selector={(state) =>
+                    [state.canSubmit, state.isSubmitting] as const
+                  }
+                >
+                  {([canSubmit, isSubmitting]) => (
+                    <Button
+                      type="submit"
+                      label={
+                        isSubmitting
+                          ? m.common_saving()
+                          : product
+                            ? m.products_save_changes()
+                            : m.products_create_title()
+                      }
+                      variant="primary"
+                      isDisabled={!canSubmit || isSubmitting}
+                      isLoading={isSubmitting}
+                    />
+                  )}
+                </form.Subscribe>
+              </HStack>
+            </LayoutFooter>
+          }
+        />
+      </form>
     </Dialog>
   );
 }

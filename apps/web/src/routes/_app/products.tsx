@@ -1,10 +1,14 @@
+import { Button } from "@astryxdesign/core/Button";
+import { Heading } from "@astryxdesign/core/Heading";
+import { Icon } from "@astryxdesign/core/Icon";
+import { VStack } from "@astryxdesign/core/Layout";
+import { Text } from "@astryxdesign/core/Text";
 import { ilike } from "@tanstack/db";
 import { useLiveQuery } from "@tanstack/react-db";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
-import { Button } from "@/components/ui/button";
 import { productsCollection } from "@/features/products/collection";
 import { productColumns } from "@/features/products/columns";
 import { ProductFormDialog } from "@/features/products/form";
@@ -52,13 +56,17 @@ function ProductsScreen() {
   );
 
   return (
-    <div className="grid gap-4">
-      <div>
-        <h1 className="font-bold text-2xl">{m.products_title()}</h1>
-        <p className="text-muted-foreground text-sm">{m.products_subtitle()}</p>
-      </div>
+    <VStack gap={4}>
+      <VStack gap={1}>
+        <Heading level={1}>{m.products_title()}</Heading>
+        <Text type="supporting" color="secondary">
+          {m.products_subtitle()}
+        </Text>
+      </VStack>
       {isLoading ? (
-        <p className="text-muted-foreground text-sm">{m.common_loading()}</p>
+        <Text type="supporting" color="secondary">
+          {m.common_loading()}
+        </Text>
       ) : (
         <DataTable
           // Remount when ?q changes so initialSearch re-applies on palette
@@ -71,16 +79,19 @@ function ProductsScreen() {
           onSearchChange={handleSearchChange}
           searchPlaceholder={m.products_search_placeholder()}
           toolbar={
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-1 size-4" />
-              {m.products_new()}
-            </Button>
+            <Button
+              size="sm"
+              variant="primary"
+              label={m.products_new()}
+              icon={<Icon icon={Plus} size="sm" />}
+              onClick={() => setCreateOpen(true)}
+            />
           }
         />
       )}
       {createOpen && (
         <ProductFormDialog open={createOpen} onOpenChange={setCreateOpen} />
       )}
-    </div>
+    </VStack>
   );
 }

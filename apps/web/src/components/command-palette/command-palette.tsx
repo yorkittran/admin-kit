@@ -1,5 +1,5 @@
 import {
-  CommandPalette,
+  CommandPalette as AstryxCommandPalette,
   CommandPaletteInput,
 } from "@astryxdesign/core/CommandPalette";
 import { Icon } from "@astryxdesign/core/Icon";
@@ -7,7 +7,6 @@ import type {
   SearchableItem,
   SearchSource,
 } from "@astryxdesign/core/Typeahead";
-import { ilike } from "@tanstack/db";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useRouter } from "@tanstack/react-router";
@@ -55,9 +54,8 @@ type PaletteItem = SearchableItem<PaletteAux>;
 
 // ---------- component ----------
 
-export function CommandPalette_({ isAdmin }: { isAdmin: boolean }) {
+export function CommandPalette({ isAdmin }: { isAdmin: boolean }) {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
   const router = useRouter();
   const { setTheme } = useTheme();
 
@@ -69,26 +67,22 @@ export function CommandPalette_({ isAdmin }: { isAdmin: boolean }) {
       ?.focus();
   });
 
-  const { data: matches = [] } = useLiveQuery(
-    (q) =>
-      q
-        .from({ p: productsCollection })
-        .where(({ p }) => ilike(p.name, `%${search}%`)),
-    [search],
+  // Live-loaded products (reactive over the locally-synced collection). This
+  // query does NOT depend on the typed query — searchSource.search() filters
+  // these rows by name client-side, which is equivalent to the old ilike read
+  // (TanStack DB live queries already run over the local store).
+  const { data: allProducts = [] } = useLiveQuery((q) =>
+    q.from({ p: productsCollection }),
   );
 
-  // Keep a ref to matches so the searchSource closure can read the latest value.
-  const matchesRef = useRef(matches);
-  matchesRef.current = matches;
+  // Stash in a ref so the stable searchSource closure reads the latest rows.
+  const allProductsRef = useRef(allProducts);
+  allProductsRef.current = allProducts;
 
-  const isAdminRef = useRef(isAdmin);
-  isAdminRef.current = isAdmin;
-
-  function run(action: () => void) {
+  const run = useCallback((action: () => void) => {
     setOpen(false);
-    setSearch("");
     action();
-  }
+  }, []);
 
   const go = useCallback(
     (to: string) => () => router.navigate({ to }),
@@ -109,7 +103,7 @@ export function CommandPalette_({ isAdmin }: { isAdmin: boolean }) {
         label: m.nav_products(),
         auxiliaryData: { group: m.palette_navigation(), icon: Package },
       },
-      ...(isAdminRef.current
+      ...(isAdmin
         ? [
             {
               id: NAV_USERS,
@@ -158,26 +152,29 @@ export function CommandPalette_({ isAdmin }: { isAdmin: boolean }) {
       },
     ];
     return items;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
-  // Custom SearchSource: combines filtered static items with live product matches.
-  // The searchSource object is stable; it reads the latest matches/items via refs.
+  // Custom SearchSource: the single source of truth for what renders.
+  // Astryx's default input drives ctx.setSearch -> runSearch(query), and
+  // runSearch is the only caller of bootstrap()/search(). The object is stable
+  // and reads the latest static items / product rows via refs.
   const staticItemsRef = useRef(staticItems);
   staticItemsRef.current = staticItems;
 
   const searchSource = useMemo<SearchSource<PaletteItem>>(
     () => ({
+      // Empty-query state: the full static list (nav + actions).
       bootstrap(): PaletteItem[] {
         return staticItemsRef.current;
       },
+      // Active query: filtered static items + up to 5 product matches.
       search(query: string): PaletteItem[] {
         const lower = query.toLowerCase().trim();
         const filtered = staticItemsRef.current.filter((item) =>
           item.label.toLowerCase().includes(lower),
         );
-        // Product matches (live query already filtered by ilike; take first 5)
-        const productItems: PaletteItem[] = matchesRef.current
+        const productItems: PaletteItem[] = allProductsRef.current
+          .filter((p) => p.name.toLowerCase().includes(lower))
           .slice(0, 5)
           .map((p) => ({
             id: `${PRODUCT_PREFIX}${p.id}`,
@@ -220,7 +217,7 @@ export function CommandPalette_({ isAdmin }: { isAdmin: boolean }) {
         });
       } else if (value.startsWith(PRODUCT_PREFIX)) {
         const productId = value.slice(PRODUCT_PREFIX.length);
-        const product = matchesRef.current.find(
+        const product = allProductsRef.current.find(
           (p) => String(p.id) === productId,
         );
         if (product) {
@@ -230,34 +227,27 @@ export function CommandPalette_({ isAdmin }: { isAdmin: boolean }) {
         }
       }
     },
-    [go, router, setTheme],
+    [go, router, setTheme, run],
   );
 
-  // Custom input slot: intercepts onValueChange to also update external `search`
-  // state (which drives the useLiveQuery for product matches).
-  const handleSearchChange = useCallback((value: string) => {
-    setSearch(value);
-  }, []);
-
+  // Custom input slot: passes ONLY the localized placeholder. With no
+  // onValueChange/value, CommandPaletteInput falls back to context
+  // (handleValueChange = onValueChange ?? ctx.setSearch), so ctx.setSearch
+  // drives runSearch -> searchSource.search and the input shows typed text.
   const inputSlot = useMemo(
-    () => (
-      <CommandPaletteInput
-        placeholder={m.palette_placeholder()}
-        onValueChange={handleSearchChange}
-      />
-    ),
-    [handleSearchChange],
+    () => <CommandPaletteInput placeholder={m.palette_placeholder()} />,
+    [],
   );
 
   return (
-    <CommandPalette
+    <AstryxCommandPalette
       isOpen={open}
-      onOpenChange={(o) => {
-        setOpen(o);
-        if (!o) setSearch("");
-      }}
+      onOpenChange={setOpen}
       searchSource={searchSource}
       input={inputSlot}
+      // Astryx CommandPalette has only a `label` prop (no description slot),
+      // so m.palette_description() has no place to render; the key is kept in
+      // the catalogs for forward-compat. Accepted, documented deviation.
       label={m.palette_title()}
       emptySearchText={m.palette_empty()}
       emptyBootstrapText={m.palette_empty()}
@@ -274,6 +264,3 @@ export function CommandPalette_({ isAdmin }: { isAdmin: boolean }) {
     />
   );
 }
-
-// Re-export with the expected public name
-export { CommandPalette_ as CommandPalette };

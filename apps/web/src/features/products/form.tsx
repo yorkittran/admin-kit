@@ -3,6 +3,7 @@ import {
   type StandardSchema,
   toStandardSchema,
 } from "@admin-kit/shared";
+import { Banner } from "@astryxdesign/core/Banner";
 import { Button } from "@astryxdesign/core/Button";
 import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
 import {
@@ -12,7 +13,6 @@ import {
   LayoutFooter,
   VStack,
 } from "@astryxdesign/core/Layout";
-import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { NumberField } from "@/components/form/number-field";
@@ -191,11 +191,7 @@ export function ProductFormDialog({
                     />
                   )}
                 </form.Field>
-                {serverError && (
-                  <Text type="body" color="accent">
-                    {serverError}
-                  </Text>
-                )}
+                {serverError && <Banner status="error" title={serverError} />}
               </VStack>
             </LayoutContent>
           }

@@ -1,5 +1,6 @@
 import { Badge } from "@astryxdesign/core/Badge";
 import { CheckboxInput } from "@astryxdesign/core/CheckboxInput";
+import { Text } from "@astryxdesign/core/Text";
 import type { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "@/components/data-table/sortable-header";
 import { m } from "@/paraglide/messages";
@@ -52,9 +53,9 @@ export const productColumns: ColumnDef<ProductRow>[] = [
     accessorKey: "description",
     header: () => m.products_description_label(),
     cell: ({ row }) => (
-      <span className="block max-w-64 truncate text-secondary">
+      <Text type="supporting" color="secondary">
         {row.original.description ?? "—"}
-      </span>
+      </Text>
     ),
   },
   {

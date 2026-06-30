@@ -1,4 +1,5 @@
 import { AppShell } from "@astryxdesign/core/AppShell";
+import { HStack } from "@astryxdesign/core/HStack";
 import { Icon } from "@astryxdesign/core/Icon";
 import { IconButton } from "@astryxdesign/core/IconButton";
 import {
@@ -56,9 +57,11 @@ function AppLayout() {
       contentPadding={6}
       sideNav={
         <SideNav
-          header={<SideNavHeading heading="admin-kit" headingHref="/" />}
+          header={
+            <SideNavHeading heading="admin-kit" headingHref="/" as={Link} />
+          }
           footer={
-            <div className="flex items-center gap-2 px-2 py-2">
+            <HStack gap={2} vAlign="center" className="px-2 py-2">
               <ModeToggle />
               <IconButton
                 label={m.nav_sign_out()}
@@ -68,10 +71,10 @@ function AppLayout() {
                 tooltip={m.nav_sign_out()}
                 onClick={signOut}
               />
-            </div>
+            </HStack>
           }
         >
-          <SideNavSection title={m.nav_dashboard()} isHeaderHidden>
+          <SideNavSection title={m.nav_main()} isHeaderHidden>
             <SideNavItem
               label={m.nav_dashboard()}
               icon={LayoutDashboard}

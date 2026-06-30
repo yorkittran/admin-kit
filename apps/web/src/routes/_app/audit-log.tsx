@@ -1,6 +1,8 @@
 import { Badge } from "@astryxdesign/core/Badge";
 import { Banner } from "@astryxdesign/core/Banner";
 import { Button } from "@astryxdesign/core/Button";
+import type { ISODateString } from "@astryxdesign/core/Calendar";
+import { DateInput } from "@astryxdesign/core/DateInput";
 import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
 import { Heading } from "@astryxdesign/core/Heading";
 import {
@@ -141,19 +143,15 @@ function AuditLogPage() {
           value={filters.action}
           onChange={(v) => setFilter("action", v)}
         />
-        <TextInput
+        <DateInput
           label={m.audit_from()}
-          type="text"
-          placeholder="YYYY-MM-DD"
-          value={filters.from}
-          onChange={(value) => setFilter("from", value)}
+          value={(filters.from || undefined) as ISODateString | undefined}
+          onChange={(v) => setFilter("from", v ?? "")}
         />
-        <TextInput
+        <DateInput
           label={m.audit_to()}
-          type="text"
-          placeholder="YYYY-MM-DD"
-          value={filters.to}
-          onChange={(value) => setFilter("to", value)}
+          value={(filters.to || undefined) as ISODateString | undefined}
+          onChange={(v) => setFilter("to", v ?? "")}
         />
       </HStack>
 
@@ -266,7 +264,7 @@ function AuditLogPage() {
                   <Text type="label" weight="medium">
                     {m.audit_before()}
                   </Text>
-                  <pre className="max-h-80 overflow-auto rounded-md bg-muted p-3 text-xs">
+                  <pre className="max-h-80 overflow-auto rounded-md bg-surface p-3 text-xs">
                     {detail?.before
                       ? JSON.stringify(detail.before, null, 2)
                       : "—"}
@@ -276,7 +274,7 @@ function AuditLogPage() {
                   <Text type="label" weight="medium">
                     {m.audit_after()}
                   </Text>
-                  <pre className="max-h-80 overflow-auto rounded-md bg-muted p-3 text-xs">
+                  <pre className="max-h-80 overflow-auto rounded-md bg-surface p-3 text-xs">
                     {detail?.after
                       ? JSON.stringify(detail.after, null, 2)
                       : "—"}

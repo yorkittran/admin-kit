@@ -1,3 +1,6 @@
+import { AppShell } from "@astryxdesign/core/AppShell";
+import { Card } from "@astryxdesign/core/Card";
+import { Center } from "@astryxdesign/core/Center";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 
@@ -11,10 +14,12 @@ export const Route = createFileRoute("/_auth")({
 
 function AuthLayout() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <Outlet />
-      </div>
-    </main>
+    <AppShell height="fill" contentPadding={4}>
+      <Center axis="both" height="100%">
+        <Card padding={6} width={384}>
+          <Outlet />
+        </Card>
+      </Center>
+    </AppShell>
   );
 }

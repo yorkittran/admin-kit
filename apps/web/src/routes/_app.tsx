@@ -1,16 +1,29 @@
+import { AppShell } from "@astryxdesign/core/AppShell";
+import { Icon } from "@astryxdesign/core/Icon";
+import { IconButton } from "@astryxdesign/core/IconButton";
+import {
+  SideNav,
+  SideNavHeading,
+  SideNavItem,
+  SideNavSection,
+} from "@astryxdesign/core/SideNav";
 import {
   createFileRoute,
   Link,
-  type LinkProps,
   Outlet,
   redirect,
-  useRouter,
+  useRouterState,
 } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
-import type { ReactNode } from "react";
+import {
+  LayoutDashboard,
+  LogOut,
+  Package,
+  ScrollText,
+  User,
+  Users,
+} from "lucide-react";
 import { CommandPalette } from "@/components/command-palette/command-palette";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { m } from "@/paraglide/messages";
 
@@ -25,63 +38,85 @@ export const Route = createFileRoute("/_app")({
   component: AppLayout,
 });
 
-function NavLink({
-  to,
-  children,
-}: {
-  to: LinkProps["to"];
-  children: ReactNode;
-}) {
-  return (
-    <Link
-      to={to}
-      className="rounded-md px-3 py-2 text-sm hover:bg-accent"
-      activeProps={{
-        className: "rounded-md bg-accent px-3 py-2 font-medium text-sm",
-      }}
-    >
-      {children}
-    </Link>
-  );
-}
-
 function AppLayout() {
   const { session } = Route.useRouteContext();
-  const router = useRouter();
   const isAdmin = session.user.role === "admin";
+  const routerState = useRouterState();
+  const pathname = routerState.location.pathname;
 
   async function signOut() {
     await authClient.signOut();
-    await router.navigate({ to: "/login", search: { redirect: undefined } });
+    window.location.href = "/login";
   }
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="flex w-56 flex-col border-r p-4">
-        <span className="mb-6 px-3 font-bold text-lg">admin-kit</span>
-        <nav className="flex flex-1 flex-col gap-1">
-          <NavLink to="/">{m.nav_dashboard()}</NavLink>
-          <NavLink to="/products">{m.nav_products()}</NavLink>
-          {isAdmin && <NavLink to="/users">{m.nav_users()}</NavLink>}
-          {isAdmin && <NavLink to="/audit-log">{m.nav_audit_log()}</NavLink>}
-          <NavLink to="/profile">{m.nav_profile()}</NavLink>
-        </nav>
-        <div className="flex items-center justify-between">
-          <ModeToggle />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={signOut}
-            aria-label={m.nav_sign_out()}
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
-        </div>
-      </aside>
-      <main className="flex-1 p-6">
-        <Outlet />
-      </main>
+    <AppShell
+      height="fill"
+      variant="elevated"
+      contentPadding={6}
+      sideNav={
+        <SideNav
+          header={<SideNavHeading heading="admin-kit" headingHref="/" />}
+          footer={
+            <div className="flex items-center gap-2 px-2 py-2">
+              <ModeToggle />
+              <IconButton
+                label={m.nav_sign_out()}
+                icon={<Icon icon={LogOut} />}
+                variant="ghost"
+                size="sm"
+                tooltip={m.nav_sign_out()}
+                onClick={signOut}
+              />
+            </div>
+          }
+        >
+          <SideNavSection title={m.nav_dashboard()} isHeaderHidden>
+            <SideNavItem
+              label={m.nav_dashboard()}
+              icon={LayoutDashboard}
+              isSelected={pathname === "/"}
+              as={Link}
+              href="/"
+            />
+            <SideNavItem
+              label={m.nav_products()}
+              icon={Package}
+              isSelected={pathname.startsWith("/products")}
+              as={Link}
+              href="/products"
+            />
+            {isAdmin && (
+              <SideNavItem
+                label={m.nav_users()}
+                icon={Users}
+                isSelected={pathname.startsWith("/users")}
+                as={Link}
+                href="/users"
+              />
+            )}
+            {isAdmin && (
+              <SideNavItem
+                label={m.nav_audit_log()}
+                icon={ScrollText}
+                isSelected={pathname.startsWith("/audit-log")}
+                as={Link}
+                href="/audit-log"
+              />
+            )}
+            <SideNavItem
+              label={m.nav_profile()}
+              icon={User}
+              isSelected={pathname.startsWith("/profile")}
+              as={Link}
+              href="/profile"
+            />
+          </SideNavSection>
+        </SideNav>
+      }
+    >
+      <Outlet />
       <CommandPalette isAdmin={isAdmin} />
-    </div>
+    </AppShell>
   );
 }

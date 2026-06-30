@@ -5,8 +5,13 @@ import { fieldErrorText } from "./field-errors";
 interface TextFieldProps {
   field: AnyFieldApi;
   label: string;
-  type?: string;
+  type?: "text" | "password" | "email";
   placeholder?: string;
+  /**
+   * NOTE: Astryx TextInput v0.1.2 has no autoComplete prop, so this is
+   * currently NOT forwarded to the DOM input. Kept for intent/forward-compat;
+   * htmlName is set as the autofill anchor.
+   */
   autoComplete?: string;
 }
 
@@ -15,18 +20,15 @@ export function TextField({
   label,
   type = "text",
   placeholder,
-  autoComplete,
 }: TextFieldProps) {
   const errorText = fieldErrorText(field);
-  // TextInput only accepts 'text' | 'password' | 'email'; fall back to 'text'
-  const safeType = type === "password" || type === "email" ? type : "text";
   return (
     <TextInput
       id={field.name}
+      htmlName={field.name}
       label={label}
-      type={safeType}
+      type={type}
       placeholder={placeholder}
-      // autoComplete is not in TextInputProps (BaseProps extends HTMLAttributes, not InputHTMLAttributes)
       value={(field.state.value as string | null | undefined) ?? ""}
       onBlur={field.handleBlur}
       onChange={(value) => field.handleChange(value)}

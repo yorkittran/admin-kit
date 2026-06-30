@@ -18,7 +18,6 @@ export function SelectField({
   const errorText = fieldErrorText(field);
   return (
     <Selector
-      id={field.name}
       label={label}
       placeholder={placeholder}
       options={options.map((o) => ({ value: o.value, label: o.label }))}

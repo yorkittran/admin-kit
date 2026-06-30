@@ -53,7 +53,12 @@ export const productColumns: ColumnDef<ProductRow>[] = [
     accessorKey: "description",
     header: () => m.products_description_label(),
     cell: ({ row }) => (
-      <Text type="supporting" color="secondary">
+      <Text
+        type="supporting"
+        color="secondary"
+        maxLines={1}
+        className="block max-w-64"
+      >
         {row.original.description ?? "—"}
       </Text>
     ),

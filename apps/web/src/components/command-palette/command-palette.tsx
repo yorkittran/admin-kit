@@ -1,3 +1,12 @@
+import {
+  CommandPalette,
+  CommandPaletteInput,
+} from "@astryxdesign/core/CommandPalette";
+import { Icon } from "@astryxdesign/core/Icon";
+import type {
+  SearchableItem,
+  SearchSource,
+} from "@astryxdesign/core/Typeahead";
 import { ilike } from "@tanstack/db";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useHotkey } from "@tanstack/react-hotkeys";
@@ -14,22 +23,39 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command";
 import { productsCollection } from "@/features/products/collection";
 import { authClient } from "@/lib/auth-client";
 import { m } from "@/paraglide/messages";
 
-export function CommandPalette({ isAdmin }: { isAdmin: boolean }) {
+// ---------- item id constants ----------
+
+const NAV_DASHBOARD = "nav-dashboard";
+const NAV_PRODUCTS = "nav-products";
+const NAV_USERS = "nav-users";
+const NAV_AUDIT_LOG = "nav-audit-log";
+const NAV_PROFILE = "nav-profile";
+const ACTION_NEW_PRODUCT = "action-new-product";
+const ACTION_THEME_LIGHT = "action-theme-light";
+const ACTION_THEME_DARK = "action-theme-dark";
+const ACTION_LANGUAGE = "action-language";
+const ACTION_SIGN_OUT = "action-sign-out";
+
+const PRODUCT_PREFIX = "product-";
+
+// ---------- item type ----------
+
+interface PaletteAux {
+  group: string;
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
+
+type PaletteItem = SearchableItem<PaletteAux>;
+
+// ---------- component ----------
+
+export function CommandPalette_({ isAdmin }: { isAdmin: boolean }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const router = useRouter();
@@ -51,107 +77,203 @@ export function CommandPalette({ isAdmin }: { isAdmin: boolean }) {
     [search],
   );
 
+  // Keep a ref to matches so the searchSource closure can read the latest value.
+  const matchesRef = useRef(matches);
+  matchesRef.current = matches;
+
+  const isAdminRef = useRef(isAdmin);
+  isAdminRef.current = isAdmin;
+
   function run(action: () => void) {
     setOpen(false);
     setSearch("");
     action();
   }
 
-  const go = (to: string) => () => router.navigate({ to });
+  const go = useCallback(
+    (to: string) => () => router.navigate({ to }),
+    [router],
+  );
+
+  // Build static items (navigation + actions).
+  // These are rebuilt only when admin status or i18n changes.
+  const staticItems = useMemo<PaletteItem[]>(() => {
+    const items: PaletteItem[] = [
+      {
+        id: NAV_DASHBOARD,
+        label: m.nav_dashboard(),
+        auxiliaryData: { group: m.palette_navigation(), icon: LayoutDashboard },
+      },
+      {
+        id: NAV_PRODUCTS,
+        label: m.nav_products(),
+        auxiliaryData: { group: m.palette_navigation(), icon: Package },
+      },
+      ...(isAdminRef.current
+        ? [
+            {
+              id: NAV_USERS,
+              label: m.nav_users(),
+              auxiliaryData: { group: m.palette_navigation(), icon: Users },
+            } satisfies PaletteItem,
+            {
+              id: NAV_AUDIT_LOG,
+              label: m.nav_audit_log(),
+              auxiliaryData: {
+                group: m.palette_navigation(),
+                icon: ScrollText,
+              },
+            } satisfies PaletteItem,
+          ]
+        : []),
+      {
+        id: NAV_PROFILE,
+        label: m.nav_profile(),
+        auxiliaryData: { group: m.palette_navigation(), icon: User },
+      },
+      {
+        id: ACTION_NEW_PRODUCT,
+        label: m.palette_new_product(),
+        auxiliaryData: { group: m.palette_actions(), icon: Plus },
+      },
+      {
+        id: ACTION_THEME_LIGHT,
+        label: `${m.palette_theme()}: ${m.theme_light()}`,
+        auxiliaryData: { group: m.palette_actions(), icon: Sun },
+      },
+      {
+        id: ACTION_THEME_DARK,
+        label: `${m.palette_theme()}: ${m.theme_dark()}`,
+        auxiliaryData: { group: m.palette_actions(), icon: Moon },
+      },
+      {
+        id: ACTION_LANGUAGE,
+        label: m.profile_language(),
+        auxiliaryData: { group: m.palette_actions(), icon: Languages },
+      },
+      {
+        id: ACTION_SIGN_OUT,
+        label: m.nav_sign_out(),
+        auxiliaryData: { group: m.palette_actions() },
+      },
+    ];
+    return items;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin]);
+
+  // Custom SearchSource: combines filtered static items with live product matches.
+  // The searchSource object is stable; it reads the latest matches/items via refs.
+  const staticItemsRef = useRef(staticItems);
+  staticItemsRef.current = staticItems;
+
+  const searchSource = useMemo<SearchSource<PaletteItem>>(
+    () => ({
+      bootstrap(): PaletteItem[] {
+        return staticItemsRef.current;
+      },
+      search(query: string): PaletteItem[] {
+        const lower = query.toLowerCase().trim();
+        const filtered = staticItemsRef.current.filter((item) =>
+          item.label.toLowerCase().includes(lower),
+        );
+        // Product matches (live query already filtered by ilike; take first 5)
+        const productItems: PaletteItem[] = matchesRef.current
+          .slice(0, 5)
+          .map((p) => ({
+            id: `${PRODUCT_PREFIX}${p.id}`,
+            label: p.name,
+            auxiliaryData: { group: m.palette_products(), icon: ListChecks },
+          }));
+        return [...filtered, ...productItems];
+      },
+    }),
+    // Intentionally stable — reads current values via refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  // Dispatch the action that corresponds to the selected item id.
+  const handleValueChange = useCallback(
+    (value: string) => {
+      if (value === NAV_DASHBOARD) {
+        run(go("/"));
+      } else if (value === NAV_PRODUCTS) {
+        run(go("/products"));
+      } else if (value === NAV_USERS) {
+        run(go("/users"));
+      } else if (value === NAV_AUDIT_LOG) {
+        run(go("/audit-log"));
+      } else if (value === NAV_PROFILE) {
+        run(go("/profile"));
+      } else if (value === ACTION_NEW_PRODUCT) {
+        run(() => router.navigate({ to: "/products", search: { new: true } }));
+      } else if (value === ACTION_THEME_LIGHT) {
+        run(() => setTheme("light"));
+      } else if (value === ACTION_THEME_DARK) {
+        run(() => setTheme("dark"));
+      } else if (value === ACTION_LANGUAGE) {
+        run(go("/profile"));
+      } else if (value === ACTION_SIGN_OUT) {
+        run(async () => {
+          await authClient.signOut();
+          window.location.href = "/login";
+        });
+      } else if (value.startsWith(PRODUCT_PREFIX)) {
+        const productId = value.slice(PRODUCT_PREFIX.length);
+        const product = matchesRef.current.find(
+          (p) => String(p.id) === productId,
+        );
+        if (product) {
+          run(() =>
+            router.navigate({ to: "/products", search: { q: product.name } }),
+          );
+        }
+      }
+    },
+    [go, router, setTheme],
+  );
+
+  // Custom input slot: intercepts onValueChange to also update external `search`
+  // state (which drives the useLiveQuery for product matches).
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+  }, []);
+
+  const inputSlot = useMemo(
+    () => (
+      <CommandPaletteInput
+        placeholder={m.palette_placeholder()}
+        onValueChange={handleSearchChange}
+      />
+    ),
+    [handleSearchChange],
+  );
 
   return (
-    <CommandDialog
-      open={open}
+    <CommandPalette
+      isOpen={open}
       onOpenChange={(o) => {
         setOpen(o);
         if (!o) setSearch("");
       }}
-      title={m.palette_title()}
-      description={m.palette_description()}
-    >
-      <CommandInput
-        placeholder={m.palette_placeholder()}
-        value={search}
-        onValueChange={setSearch}
-      />
-      <CommandList>
-        <CommandEmpty>{m.palette_empty()}</CommandEmpty>
-        <CommandGroup heading={m.palette_navigation()}>
-          <CommandItem onSelect={() => run(go("/"))}>
-            <LayoutDashboard /> {m.nav_dashboard()}
-          </CommandItem>
-          <CommandItem onSelect={() => run(go("/products"))}>
-            <Package /> {m.nav_products()}
-          </CommandItem>
-          {isAdmin && (
-            <CommandItem onSelect={() => run(go("/users"))}>
-              <Users /> {m.nav_users()}
-            </CommandItem>
-          )}
-          {isAdmin && (
-            <CommandItem onSelect={() => run(go("/audit-log"))}>
-              <ScrollText /> {m.nav_audit_log()}
-            </CommandItem>
-          )}
-          <CommandItem onSelect={() => run(go("/profile"))}>
-            <User /> {m.nav_profile()}
-          </CommandItem>
-        </CommandGroup>
-        {search.trim() !== "" && matches.length > 0 && (
+      searchSource={searchSource}
+      input={inputSlot}
+      label={m.palette_title()}
+      emptySearchText={m.palette_empty()}
+      emptyBootstrapText={m.palette_empty()}
+      onValueChange={handleValueChange}
+      renderItem={(item: PaletteItem) => {
+        const IconComp = item.auxiliaryData?.icon;
+        return (
           <>
-            <CommandSeparator />
-            <CommandGroup heading={m.palette_products()}>
-              {matches.slice(0, 5).map((p) => (
-                <CommandItem
-                  key={p.id}
-                  value={`product-${p.id}-${p.name}`}
-                  onSelect={() =>
-                    run(() =>
-                      router.navigate({
-                        to: "/products",
-                        search: { q: p.name },
-                      }),
-                    )
-                  }
-                >
-                  <ListChecks /> {p.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {IconComp && <Icon icon={IconComp} size="sm" />}
+            {item.label}
           </>
-        )}
-        <CommandSeparator />
-        <CommandGroup heading={m.palette_actions()}>
-          <CommandItem
-            onSelect={() =>
-              run(() =>
-                router.navigate({ to: "/products", search: { new: true } }),
-              )
-            }
-          >
-            <Plus /> {m.palette_new_product()}
-          </CommandItem>
-          <CommandItem onSelect={() => run(() => setTheme("light"))}>
-            <Sun /> {m.palette_theme()}: {m.theme_light()}
-          </CommandItem>
-          <CommandItem onSelect={() => run(() => setTheme("dark"))}>
-            <Moon /> {m.palette_theme()}: {m.theme_dark()}
-          </CommandItem>
-          <CommandItem onSelect={() => run(go("/profile"))}>
-            <Languages /> {m.profile_language()}
-          </CommandItem>
-          <CommandItem
-            onSelect={() =>
-              run(async () => {
-                await authClient.signOut();
-                window.location.href = "/login";
-              })
-            }
-          >
-            {m.nav_sign_out()}
-          </CommandItem>
-        </CommandGroup>
-      </CommandList>
-    </CommandDialog>
+        );
+      }}
+    />
   );
 }
+
+// Re-export with the expected public name
+export { CommandPalette_ as CommandPalette };

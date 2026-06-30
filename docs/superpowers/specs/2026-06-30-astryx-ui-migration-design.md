@@ -62,13 +62,16 @@ The migration swaps **rendering only**. Untouched:
   `@astryxdesign/core/reset.css`, `@astryxdesign/core/astryx.css`,
   `@astryxdesign/theme-neutral/theme.css`.
 - **Remove** once nothing imports them: `radix-ui`, `cmdk`, `sonner`,
-  `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`,
-  `lucide-react`.
+  `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`.
 - **Keep**: `tailwindcss` (incidental layout utilities only), `recharts`
-  (Astryx has no charts), all `@tanstack/*`, better-auth, paraglide.
-- **Icons**: replace all `lucide-react` icons (~12 files) with Astryx `Icon`.
-  Verify each used icon has an Astryx equivalent (spike sub-item — icon names
-  differ); pick the closest Astryx icon where names don't match 1:1.
+  (Astryx has no charts), `lucide-react` (glyph source for Astryx `<Icon>` —
+  see Icons), all `@tanstack/*`, better-auth, paraglide.
+- **Icons** (REVISED after Task 1 — Astryx `Icon` has only ~25 semantic names):
+  every glyph renders through Astryx `<Icon>`. Use a semantic name where one
+  fits (`<Icon icon="search" />`); for glyphs Astryx doesn't name (sun, moon,
+  dashboard, package, users, …) pass the lucide SVG component into
+  `<Icon icon={LucideComp} />` — Astryx's own documented pattern. So
+  `lucide-react` is **retained** as a glyph source, not removed.
 
 ## Verification spike (FIRST step, gates the rest)
 
@@ -147,8 +150,10 @@ its dashboard charts.
 ## Success criteria (final gate)
 
 1. `bun run check` (biome + typecheck, all workspaces) is green.
-2. No remaining imports of `radix-ui`, `cmdk`, `sonner`, `cva`, `lucide-react`,
-   or `components/ui`; those deps removed from `apps/web/package.json`.
+2. No remaining imports of `radix-ui`, `cmdk`, `sonner`, `cva`, or
+   `components/ui`; those deps removed from `apps/web/package.json`.
+   (`lucide-react` is retained — but every lucide import must be wrapped by
+   Astryx `<Icon icon={…}>`, never rendered raw.)
 3. App runs and, by manual check:
    - every screen renders in light **and** dark mode;
    - forms validate and submit (create/update product, profile, auth flows);

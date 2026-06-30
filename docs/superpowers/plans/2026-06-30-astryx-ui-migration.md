@@ -17,7 +17,7 @@
 - **No automated tests** (repo decision). Verification = scoped typecheck + running the app (`bun dev`, open the screen). Never add test files.
 - **i18n:** every user-facing string stays a Paraglide message `m.key()` from `@/paraglide/messages`. Do not hardcode text; do not add/remove catalog keys (the same keys already exist in `messages/en.json` + `vi.json`).
 - **Forms:** screens never hand-roll fields — only the wrappers in `src/components/form/`. Preserve each wrapper's prop interface (`field: AnyFieldApi`, `label`, etc.) so call sites are unchanged.
-- **Icons:** when you rewrite any file, replace its `lucide-react` icons with Astryx `Icon`. Get available icon names via `npm run astryx -- docs icons` (or `component Icon`). No file should import `lucide-react` after Task 10.
+- **Icons:** every glyph renders through Astryx `<Icon>` (for theme-aware color + size tokens + a11y). Astryx has only ~25 **semantic** icon names (close, chevron*, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone). Use a semantic name where one fits (`<Icon icon="search" />`); for any glyph with no semantic name (sun, moon, dashboard, package, users, etc.) pass the **lucide-react SVG component** into `<Icon icon={LucideComp} />` — this is Astryx's documented pattern, so **lucide-react STAYS** as a glyph source (do NOT remove it). Never define icon component-functions inside a render body; import the lucide component (or hoist to module scope) so the reference is stable.
 - **Commands use the `--cwd=` form:** `bun --cwd=apps/web ...` (the space form silently no-ops).
 - **Stop the web dev server before any git branch operation** (router plugin scaffolds stubs over missing route files).
 - **Commit message footer** on every commit:
@@ -493,9 +493,9 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```bash
 cd apps/web/src
 grep -rl "@/components/ui" . ; echo "--- (expect: only files inside components/ui/ itself, which we delete) ---"
-grep -rln "lucide-react|cmdk|from \"sonner\"|class-variance-authority|tailwind-merge|\bclsx\b" . | grep -v "components/ui/"
+grep -rln "cmdk|from \"sonner\"|class-variance-authority|tailwind-merge|\bclsx\b" . | grep -v "components/ui/"
 ```
-Both (excluding `components/ui/`) must be empty. Fix any stragglers before deleting.
+Both (excluding `components/ui/`) must be empty. Fix any stragglers before deleting. NOTE: `lucide-react` is intentionally retained (feeds Astryx `<Icon>`) — do NOT grep it out, but every remaining lucide import must be wrapped by `<Icon icon={...}>`, not rendered raw.
 
 - [ ] **Step 2: Delete dead files**
 
@@ -507,9 +507,9 @@ rm apps/web/src/routes/_app/astryx-sandbox.tsx
 - [ ] **Step 3: Remove dropped deps from `apps/web/package.json`**
 
 ```bash
-bun --cwd=apps/web remove radix-ui cmdk sonner class-variance-authority clsx tailwind-merge tw-animate-css lucide-react
+bun --cwd=apps/web remove radix-ui cmdk sonner class-variance-authority clsx tailwind-merge tw-animate-css
 ```
-(Confirm `recharts`, `tailwindcss`, all `@tanstack/*`, `better-auth`, paraglide remain.)
+(Confirm `recharts`, `tailwindcss`, `lucide-react` (glyph source for Astryx `<Icon>`), all `@tanstack/*`, `better-auth`, paraglide remain.)
 
 - [ ] **Step 4: Write ADR `docs/decisions/006-astryx-over-shadcn.md`**
 
@@ -556,7 +556,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 - Build/deps + CSS + `astryx init` → Task 1. ✓
 - Verification spike (Vite 7 render, Table+Virtual, dark-mode mechanism) → Task 1. ✓
 - Remove radix/cmdk/sonner/cva/clsx/tailwind-merge/tw-animate-css/lucide → Task 11 (tw-animate import dropped in Task 1). ✓
-- Astryx Icon replaces lucide → handled per-file in each rewrite task; asserted empty in Task 11. ✓
+- Icons render through Astryx `<Icon>`; lucide retained as glyph source (REVISED — Astryx has only ~25 semantic names) → handled per-file in each rewrite task. ✓
 - Component mapping (button/badge/card/checkbox/dialog/alert-dialog/dropdown/select/input/textarea/label/command/table/sonner) → Tasks 2–10 at point of use; `components/ui/` deleted Task 11. ✓
 - Keep recharts; restyle chart wrapper → Task 9 Step 4. ✓
 - DataTable keeps TanStack Table/Virtual/Pacer → Task 4. ✓

@@ -3,6 +3,7 @@ import { Banner } from "@astryxdesign/core/Banner";
 import { Button } from "@astryxdesign/core/Button";
 import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
 import { Heading } from "@astryxdesign/core/Heading";
+import { Icon } from "@astryxdesign/core/Icon";
 import {
   HStack,
   Layout,
@@ -239,7 +240,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
       <Button
         label={m.users_invite()}
         variant="primary"
-        icon={<UserPlus size={16} />}
+        icon={<Icon icon={UserPlus} size="sm" />}
         onClick={() => setOpen(true)}
       />
       <Dialog

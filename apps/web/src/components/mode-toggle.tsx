@@ -6,16 +6,11 @@ import { m } from "@/paraglide/messages";
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
-
-  const SunIcon = () => <Sun className="h-5 w-5" />;
-  const MoonIcon = () => <Moon className="h-5 w-5" />;
-  const ThemeIcon = theme === "dark" ? MoonIcon : SunIcon;
-
   return (
     <DropdownMenu
       button={{
-        label: m.theme_system(),
-        icon: <Icon icon={ThemeIcon} />,
+        label: m.theme_toggle(),
+        icon: <Icon icon={theme === "dark" ? Moon : Sun} />,
         variant: "ghost",
         isIconOnly: true,
       }}

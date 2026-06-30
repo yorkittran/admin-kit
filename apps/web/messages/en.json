@@ -112,6 +112,7 @@
   "profile_appearance_hint": "Theme preference for this browser.",
   "profile_language": "Language",
   "profile_language_hint": "Interface language for this browser.",
+  "theme_toggle": "Toggle theme",
   "theme_light": "Light",
   "theme_dark": "Dark",
   "theme_system": "System",

@@ -1,3 +1,12 @@
+import { DropdownMenu } from "@astryxdesign/core/DropdownMenu";
+import { Icon } from "@astryxdesign/core/Icon";
+import {
+  Table,
+  TableCell,
+  TableHeaderCell,
+  TableRow,
+} from "@astryxdesign/core/Table";
+import { TextInput } from "@astryxdesign/core/TextInput";
 import { useDebouncedValue } from "@tanstack/react-pacer";
 import {
   type ColumnDef,
@@ -10,23 +19,7 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Columns3 } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { m } from "@/paraglide/messages";
 
 interface DataTableProps<TData> {
@@ -95,63 +88,63 @@ export function DataTable<TData>({
   const visibleColumnCount = table.getVisibleLeafColumns().length;
   const selectedCount = Object.keys(rowSelection).length;
 
+  const columnMenuItems = table
+    .getAllLeafColumns()
+    .filter((column) => column.getCanHide())
+    .map((column) => ({
+      label: column.id,
+      icon: column.getIsVisible() ? <Icon icon="check" size="sm" /> : undefined,
+      onClick: () => column.toggleVisibility(!column.getIsVisible()),
+    }));
+
   return (
     <div className="grid gap-3">
       <div className="flex items-center gap-2">
-        <Input
+        <TextInput
           data-slot="datatable-search"
+          label={searchPlaceholder}
+          isLabelHidden
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(value) => setSearch(value)}
           placeholder={searchPlaceholder}
-          className="max-w-xs"
+          startIcon="search"
+          width="20rem"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="ml-auto">
-              <Columns3 className="mr-1 size-4" />
-              {m.datatable_columns()}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllLeafColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  className="capitalize"
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="ml-auto">
+          <DropdownMenu
+            button={{
+              label: m.datatable_columns(),
+              variant: "secondary",
+              size: "sm",
+              icon: <Icon icon="viewColumns" size="sm" />,
+            }}
+            items={columnMenuItems}
+          />
+        </div>
         {toolbar}
       </div>
       <div
         ref={containerRef}
         className="h-[32rem] overflow-auto rounded-md border"
       >
-        <table data-slot="table" className="w-full caption-bottom text-sm">
-          <TableHeader className="sticky top-0 z-10 bg-background">
+        <Table density="compact" hasHover>
+          <thead className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} isHeaderRow>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHeaderCell key={header.id}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
-                  </TableHead>
+                  </TableHeaderCell>
                 ))}
               </TableRow>
             ))}
-          </TableHeader>
-          <TableBody>
+          </thead>
+          <tbody>
             {paddingTop > 0 && (
               <TableRow>
                 <TableCell
@@ -176,7 +169,9 @@ export function DataTable<TData>({
                 return (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+                    data-index={virtualRow.index}
+                    ref={virtualizer.measureElement}
+                    data-state={row.getIsSelected() ? "selected" : undefined}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -198,8 +193,8 @@ export function DataTable<TData>({
                 />
               </TableRow>
             )}
-          </TableBody>
-        </table>
+          </tbody>
+        </Table>
       </div>
       <p className="text-muted-foreground text-sm">
         {m.datatable_selected({ selected: selectedCount, total: rows.length })}

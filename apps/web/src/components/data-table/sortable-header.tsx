@@ -1,7 +1,7 @@
+import { Button } from "@astryxdesign/core/Button";
+import { Icon } from "@astryxdesign/core/Icon";
 import type { Column } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 
 interface SortableHeaderProps<TData> {
   column: Column<TData, unknown>;
@@ -13,17 +13,21 @@ export function SortableHeader<TData>({
   children,
 }: SortableHeaderProps<TData>) {
   const sorted = column.getIsSorted();
-  const Icon =
-    sorted === "asc" ? ArrowUp : sorted === "desc" ? ArrowDown : ArrowUpDown;
+  const icon =
+    sorted === "asc"
+      ? "arrowUp"
+      : sorted === "desc"
+        ? "arrowDown"
+        : "arrowsUpDown";
   return (
     <Button
+      label={typeof children === "string" ? children : column.id}
       variant="ghost"
       size="sm"
-      className="-ml-3"
       onClick={column.getToggleSortingHandler()}
+      endContent={<Icon icon={icon} size="sm" />}
     >
       {children}
-      <Icon className="ml-1 size-4" />
     </Button>
   );
 }

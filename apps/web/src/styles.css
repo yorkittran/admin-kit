@@ -1,14 +1,26 @@
-/* Cascade-layer order: Astryx component chrome (astryx-base/astryx-theme) must
-   outrank Tailwind's preflight (base) so resets don't strip button fills and
-   input/card borders — while Tailwind utilities stay last so bg-surface et al.
-   still win where used. A bare @layer statement is allowed before @import. */
+/* Astryx + Tailwind v4 integration — the import structure documented in
+   @astryxdesign/core/tailwind-theme.css. Tailwind is split into its three
+   parts so its theme emission sits in @layer theme (low priority) while
+   Astryx's real token values (@layer astryx-theme) and component chrome
+   (@layer astryx-base) outrank Tailwind's preflight (@layer base) and theme.
+   Utilities stay last so bg-surface/text-primary etc. win where used.
+
+   This ordering is load-bearing: with the all-in-one `@import "tailwindcss"`,
+   the bridge's @theme-inline same-name mappings (--radius-full: var(--radius-full),
+   --color-success: var(--color-success), --font-weight-medium: …) emit to an
+   unlayered :root that clobbers Astryx's real values with circular references,
+   silently zeroing border-radius, status colors, and font weights (badge pills,
+   secondary-button fills). Splitting Tailwind keeps that emission in @layer theme,
+   below astryx-theme, so the real values win. */
 @layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
 
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
 @import "@astryxdesign/core/reset.css";
 @import "@astryxdesign/core/astryx.css";
 @import "@astryxdesign/theme-neutral/theme.css";
 @import "@astryxdesign/core/tailwind-theme.css";
-@import "tailwindcss";
+@import "tailwindcss/utilities.css" layer(utilities);
 
 /* Chart colors for recharts (Astryx has no charts). Light + dark via data-theme. */
 :root {
@@ -39,9 +51,7 @@
    light-dark() tokens resolve to the chosen theme. Unlayered, so it outranks
    Astryx theme.css's @layer astryx-theme :root{color-scheme:light dark} default
    (which would otherwise pin every surface to the OS scheme, ignoring the
-   in-app toggle). Astryx's own data-theme→color-scheme rules live in @layer
-   reset and lose to that astryx-theme default — this is the documented
-   "consumer styles (unlayered) always override" escape hatch. */
+   in-app toggle). */
 html[data-theme="light"] {
   color-scheme: light;
 }

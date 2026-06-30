@@ -35,6 +35,20 @@
   --color-chart-5: var(--chart-5);
 }
 
+/* theme-provider sets data-theme on <html>; map it to color-scheme so Astryx's
+   light-dark() tokens resolve to the chosen theme. Unlayered, so it outranks
+   Astryx theme.css's @layer astryx-theme :root{color-scheme:light dark} default
+   (which would otherwise pin every surface to the OS scheme, ignoring the
+   in-app toggle). Astryx's own data-theme→color-scheme rules live in @layer
+   reset and lose to that astryx-theme default — this is the documented
+   "consumer styles (unlayered) always override" escape hatch. */
+html[data-theme="light"] {
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 body {
   background-color: var(--color-background-body);
   color: var(--color-text-primary);

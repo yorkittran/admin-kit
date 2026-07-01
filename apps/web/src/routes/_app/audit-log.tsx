@@ -12,17 +12,13 @@ import {
   VStack,
 } from "@astryxdesign/core/Layout";
 import { Selector } from "@astryxdesign/core/Selector";
-import {
-  Table,
-  TableCell,
-  TableHeaderCell,
-  TableRow,
-} from "@astryxdesign/core/Table";
+import { TableCell, TableHeaderCell, TableRow } from "@astryxdesign/core/Table";
 import { Text } from "@astryxdesign/core/Text";
 import { TextInput } from "@astryxdesign/core/TextInput";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
+import { TableFrame } from "@/components/data-table/table-frame";
 import { api } from "@/lib/api";
 import { m } from "@/paraglide/messages";
 
@@ -157,8 +153,8 @@ function AuditLogPage() {
 
       {isError && <Banner status="error" title={m.audit_load_error()} />}
 
-      <Table density="compact" hasHover>
-        <thead>
+      <TableFrame className="max-h-[40rem]">
+        <thead className="sticky top-0 z-10 bg-surface">
           <TableRow isHeaderRow>
             <TableHeaderCell>{m.audit_time()}</TableHeaderCell>
             <TableHeaderCell>{m.audit_actor()}</TableHeaderCell>
@@ -216,7 +212,7 @@ function AuditLogPage() {
             </TableRow>
           ))}
         </tbody>
-      </Table>
+      </TableFrame>
 
       <HStack justify="between" vAlign="center">
         <Text type="supporting" color="secondary">

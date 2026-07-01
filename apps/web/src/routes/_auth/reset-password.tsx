@@ -1,10 +1,12 @@
 import { Banner } from "@astryxdesign/core/Banner";
 import { Button } from "@astryxdesign/core/Button";
 import { Heading } from "@astryxdesign/core/Heading";
+import { Icon } from "@astryxdesign/core/Icon";
 import { VStack } from "@astryxdesign/core/Layout";
 import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { KeyRound } from "lucide-react";
 import { useState } from "react";
 import { TextField } from "@/components/form/text-field";
 import { authClient } from "@/lib/auth-client";
@@ -104,6 +106,7 @@ function ResetPasswordPage() {
               type="submit"
               label={isSubmitting ? m.common_saving() : m.auth_set_password()}
               variant="primary"
+              icon={<Icon icon={KeyRound} size="sm" />}
               isDisabled={!canSubmit || isSubmitting}
               isLoading={isSubmitting}
             />

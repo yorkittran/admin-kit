@@ -17,7 +17,7 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { UserPlus } from "lucide-react";
+import { Ban, Send, UserCheck, UserPlus } from "lucide-react";
 import { useCallback, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { SelectField } from "@/components/form/select-field";
@@ -156,9 +156,17 @@ function UsersPage() {
       header: m.common_status(),
       cell: ({ row }) =>
         row.original.banned ? (
-          <Badge variant="error" label={m.users_banned()} />
+          <Badge
+            variant="error"
+            label={m.users_banned()}
+            icon={<Icon icon={Ban} size="sm" />}
+          />
         ) : (
-          <Badge variant="success" label={m.users_active()} />
+          <Badge
+            variant="success"
+            label={m.users_active()}
+            icon={<Icon icon="check" size="sm" />}
+          />
         ),
     },
     {
@@ -170,6 +178,9 @@ function UsersPage() {
             variant="secondary"
             size="sm"
             label={row.original.banned ? m.users_unban() : m.users_ban()}
+            icon={
+              <Icon icon={row.original.banned ? UserCheck : Ban} size="sm" />
+            }
             isDisabled={row.original.id === session.user.id}
             onClick={() => toggleBan(row.original)}
           />
@@ -316,6 +327,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
                   <Button
                     label={m.common_cancel()}
                     variant="secondary"
+                    icon={<Icon icon="close" size="sm" />}
                     onClick={() => handleOpenChange(false)}
                   />
                   <form.Subscribe
@@ -332,6 +344,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
                             : m.users_invite_send()
                         }
                         variant="primary"
+                        icon={<Icon icon={Send} size="sm" />}
                         isDisabled={!canSubmit || isSubmitting}
                         isLoading={isSubmitting}
                       />

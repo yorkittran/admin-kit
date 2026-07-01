@@ -5,6 +5,7 @@ import type { ISODateString } from "@astryxdesign/core/Calendar";
 import { DateInput } from "@astryxdesign/core/DateInput";
 import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
 import { Heading } from "@astryxdesign/core/Heading";
+import { Icon } from "@astryxdesign/core/Icon";
 import {
   HStack,
   Layout,
@@ -17,6 +18,7 @@ import { Text } from "@astryxdesign/core/Text";
 import { TextInput } from "@astryxdesign/core/TextInput";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { TableFrame } from "@/components/data-table/table-frame";
 import { api } from "@/lib/api";
@@ -40,6 +42,12 @@ const actionLabels: Record<AuditAction, () => string> = {
   create: m.audit_action_create,
   update: m.audit_action_update,
   delete: m.audit_action_delete,
+};
+
+const actionIcons: Record<AuditAction, typeof Plus> = {
+  create: Plus,
+  update: Pencil,
+  delete: Trash2,
 };
 
 interface Filters {
@@ -191,6 +199,7 @@ function AuditLogPage() {
                 <Badge
                   variant={row.action === "delete" ? "error" : "neutral"}
                   label={actionLabels[row.action]()}
+                  icon={<Icon icon={actionIcons[row.action]} size="sm" />}
                 />
               </TableCell>
               <TableCell>{row.resource}</TableCell>
@@ -204,6 +213,7 @@ function AuditLogPage() {
                   variant="ghost"
                   size="sm"
                   label={m.audit_view()}
+                  icon={<Icon icon={Eye} size="sm" />}
                   onClick={() =>
                     setDetail({ before: row.before, after: row.after })
                   }
@@ -227,6 +237,7 @@ function AuditLogPage() {
             variant="secondary"
             size="sm"
             label={m.audit_prev()}
+            icon={<Icon icon="chevronLeft" size="sm" />}
             isDisabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
           />
@@ -234,6 +245,7 @@ function AuditLogPage() {
             variant="secondary"
             size="sm"
             label={m.audit_next()}
+            endContent={<Icon icon="chevronRight" size="sm" />}
             isDisabled={page >= pages}
             onClick={() => setPage((p) => p + 1)}
           />

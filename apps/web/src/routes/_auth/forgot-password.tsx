@@ -1,10 +1,12 @@
 import { Banner } from "@astryxdesign/core/Banner";
 import { Button } from "@astryxdesign/core/Button";
 import { Heading } from "@astryxdesign/core/Heading";
+import { Icon } from "@astryxdesign/core/Icon";
 import { VStack } from "@astryxdesign/core/Layout";
 import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Send } from "lucide-react";
 import { useState } from "react";
 import { TextField } from "@/components/form/text-field";
 import { authClient } from "@/lib/auth-client";
@@ -53,6 +55,7 @@ function ForgotPasswordPage() {
           <Button
             variant="secondary"
             label={m.auth_back_to_login()}
+            icon={<Icon icon="chevronLeft" size="sm" />}
             onClick={() =>
               navigate({ to: "/login", search: { redirect: undefined } })
             }
@@ -93,6 +96,7 @@ function ForgotPasswordPage() {
                   isSubmitting ? m.common_sending() : m.auth_send_reset_link()
                 }
                 variant="primary"
+                icon={<Icon icon={Send} size="sm" />}
                 isDisabled={!canSubmit || isSubmitting}
                 isLoading={isSubmitting}
               />

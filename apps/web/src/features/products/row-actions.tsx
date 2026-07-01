@@ -92,11 +92,13 @@ export function ProductRowActions({ product }: { product: ProductRow }) {
                 <Button
                   label={m.common_cancel()}
                   variant="secondary"
+                  icon={<Icon icon="close" size="sm" />}
                   onClick={() => setConfirmOpen(false)}
                 />
                 <Button
                   label={m.common_delete()}
                   variant="destructive"
+                  icon={<Icon icon={Trash2} size="sm" />}
                   clickAction={handleDelete}
                 />
               </HStack>

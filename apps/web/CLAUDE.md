@@ -14,6 +14,7 @@ File-based routes under `src/routes/`: `_auth/*` = guest-only screens, `_app/*` 
 ## UI
 
 - Astryx components (`@astryxdesign/core`): look up props/usage with `bunx astryx component <Name>` — never guess the Beta API. Every glyph renders through Astryx `<Icon>` (semantic name, or a lucide component passed as `icon={Comp}`). Charts use recharts (Astryx has none).
+- **Every `<Button>` and `<Badge>` carries an icon** — pass `icon={<Icon icon="…" size="sm" />}` (semantic name or a lucide component). No text-only buttons or badges. For a toggle/conditional label, pick the icon per state. `<Button endContent={…}>` (e.g. a trailing sort caret) satisfies this too.
 - Forms: TanStack Form + the wrappers in `src/components/form/` (`text-field`, `number-field`, `select-field`, `textarea-field` — each renders errors internally via Astryx Field `status`; don't add error rendering separately). Validate with shared TypeBox schemas via the standard-schema bridge.
 - Tables: the shared DataTable in `src/components/data-table/` (TanStack Table + Virtual, Pacer-debounced search). New list screens reuse it — don't build ad-hoc tables.
 

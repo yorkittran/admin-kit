@@ -6,6 +6,7 @@ import {
 import { Banner } from "@astryxdesign/core/Banner";
 import { Button } from "@astryxdesign/core/Button";
 import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
+import { Icon } from "@astryxdesign/core/Icon";
 import {
   HStack,
   Layout,
@@ -201,6 +202,7 @@ export function ProductFormDialog({
                 <Button
                   label={m.common_cancel()}
                   variant="secondary"
+                  icon={<Icon icon="close" size="sm" />}
                   onClick={() => onOpenChange(false)}
                 />
                 <form.Subscribe
@@ -219,6 +221,7 @@ export function ProductFormDialog({
                             : m.products_create_title()
                       }
                       variant="primary"
+                      icon={<Icon icon="check" size="sm" />}
                       isDisabled={!canSubmit || isSubmitting}
                       isLoading={isSubmitting}
                     />

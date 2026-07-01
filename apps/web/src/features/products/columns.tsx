@@ -1,7 +1,9 @@
 import { Badge } from "@astryxdesign/core/Badge";
 import { CheckboxInput } from "@astryxdesign/core/CheckboxInput";
+import { Icon } from "@astryxdesign/core/Icon";
 import { Text } from "@astryxdesign/core/Text";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Archive } from "lucide-react";
 import { SortableHeader } from "@/components/data-table/sortable-header";
 import { m } from "@/paraglide/messages";
 import type { ProductRow } from "./collection";
@@ -83,6 +85,13 @@ export const productColumns: ColumnDef<ProductRow>[] = [
           row.original.status === "active"
             ? m.products_status_active()
             : m.products_status_archived()
+        }
+        icon={
+          row.original.status === "active" ? (
+            <Icon icon="check" size="sm" />
+          ) : (
+            <Icon icon={Archive} size="sm" />
+          )
         }
       />
     ),

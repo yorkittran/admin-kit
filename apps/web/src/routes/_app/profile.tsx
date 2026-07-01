@@ -2,10 +2,12 @@ import { Banner } from "@astryxdesign/core/Banner";
 import { Button } from "@astryxdesign/core/Button";
 import { Card } from "@astryxdesign/core/Card";
 import { Heading } from "@astryxdesign/core/Heading";
+import { Icon } from "@astryxdesign/core/Icon";
 import { VStack } from "@astryxdesign/core/Layout";
 import { Text } from "@astryxdesign/core/Text";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { KeyRound } from "lucide-react";
 import { useState } from "react";
 import { TextField } from "@/components/form/text-field";
 import { LocaleSwitcher } from "@/components/locale-switcher";
@@ -105,6 +107,7 @@ function ProfilePage() {
                   type="submit"
                   label={isSubmitting ? m.common_saving() : m.common_save()}
                   variant="primary"
+                  icon={<Icon icon="check" size="sm" />}
                   isDisabled={!canSubmit || isSubmitting}
                   isLoading={isSubmitting}
                 />
@@ -189,6 +192,7 @@ function ProfilePage() {
                       : m.profile_change_password()
                   }
                   variant="primary"
+                  icon={<Icon icon={KeyRound} size="sm" />}
                   isDisabled={!canSubmit || isSubmitting}
                   isLoading={isSubmitting}
                 />

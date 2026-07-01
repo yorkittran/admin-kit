@@ -1,8 +1,9 @@
 import { DropdownMenu } from "@astryxdesign/core/DropdownMenu";
 import { Icon } from "@astryxdesign/core/Icon";
 import {
-  Table,
   TableCell,
+  TableContext,
+  type TableContextValue,
   TableHeaderCell,
   TableRow,
 } from "@astryxdesign/core/Table";
@@ -32,6 +33,22 @@ interface DataTableProps<TData> {
   initialSearch?: string;
   toolbar?: ReactNode;
 }
+
+// Astryx's <Table> injects its own horizontal-scroll wrapper (overflow-x:auto
+// + container-bleed negative margins). Nesting that inside our own scroll
+// container gives two scroll ancestors: the sticky <thead> then attaches to the
+// inner wrapper (which never scrolls vertically) and scrolls out of view, and
+// the bleed margin clips it under the border. Rendering a plain <table> and
+// supplying TableContext ourselves keeps the cell/row styling while leaving our
+// bordered div as the single scroll container the sticky header can pin to.
+const TABLE_CONTEXT: TableContextValue = {
+  density: "compact",
+  dividers: "rows",
+  isStriped: false,
+  hasHover: true,
+  verticalAlign: "middle",
+  textOverflow: "wrap",
+};
 
 export function DataTable<TData>({
   columns,
@@ -139,82 +156,84 @@ export function DataTable<TData>({
       </div>
       <div
         ref={containerRef}
-        className="h-[32rem] overflow-auto rounded-md border"
+        className="h-[32rem] overflow-auto rounded-md border border-border"
       >
-        <Table density="compact" hasHover>
-          <thead className="sticky top-0 z-10 bg-surface">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} isHeaderRow>
-                {headerGroup.headers.map((header) => (
-                  <TableHeaderCell
-                    key={header.id}
-                    style={lockWidth(header.column.columnDef.size)}
+        <TableContext value={TABLE_CONTEXT}>
+          <table className="w-full table-auto border-collapse">
+            <thead className="sticky top-0 z-10 bg-surface">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} isHeaderRow>
+                  {headerGroup.headers.map((header) => (
+                    <TableHeaderCell
+                      key={header.id}
+                      style={lockWidth(header.column.columnDef.size)}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHeaderCell>
+                  ))}
+                </TableRow>
+              ))}
+            </thead>
+            <tbody>
+              {paddingTop > 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={visibleColumnCount}
+                    style={{ height: paddingTop, padding: 0 }}
+                  />
+                </TableRow>
+              )}
+              {rows.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={visibleColumnCount}
+                    className="h-24 text-center"
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHeaderCell>
-                ))}
-              </TableRow>
-            ))}
-          </thead>
-          <tbody>
-            {paddingTop > 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={visibleColumnCount}
-                  style={{ height: paddingTop, padding: 0 }}
-                />
-              </TableRow>
-            )}
-            {rows.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={visibleColumnCount}
-                  className="h-24 text-center"
-                >
-                  <Text color="secondary">{m.datatable_no_results()}</Text>
-                </TableCell>
-              </TableRow>
-            ) : (
-              virtualRows.map((virtualRow) => {
-                const row = rows[virtualRow.index];
-                if (!row) return null;
-                return (
-                  <TableRow
-                    key={row.id}
-                    data-index={virtualRow.index}
-                    ref={virtualizer.measureElement}
-                    data-state={row.getIsSelected() ? "selected" : undefined}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        style={lockWidth(cell.column.columnDef.size)}
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                );
-              })
-            )}
-            {paddingBottom > 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={visibleColumnCount}
-                  style={{ height: paddingBottom, padding: 0 }}
-                />
-              </TableRow>
-            )}
-          </tbody>
-        </Table>
+                    <Text color="secondary">{m.datatable_no_results()}</Text>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                virtualRows.map((virtualRow) => {
+                  const row = rows[virtualRow.index];
+                  if (!row) return null;
+                  return (
+                    <TableRow
+                      key={row.id}
+                      data-index={virtualRow.index}
+                      ref={virtualizer.measureElement}
+                      data-state={row.getIsSelected() ? "selected" : undefined}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          style={lockWidth(cell.column.columnDef.size)}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  );
+                })
+              )}
+              {paddingBottom > 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={visibleColumnCount}
+                    style={{ height: paddingBottom, padding: 0 }}
+                  />
+                </TableRow>
+              )}
+            </tbody>
+          </table>
+        </TableContext>
       </div>
       <Text type="supporting" color="secondary">
         {m.datatable_selected({ selected: selectedCount, total: rows.length })}

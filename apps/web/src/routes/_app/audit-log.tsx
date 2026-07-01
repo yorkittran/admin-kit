@@ -35,7 +35,8 @@ export const Route = createFileRoute("/_app/audit-log")({
 });
 
 const ALL = "__all__";
-const PAGE_SIZE = 25;
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const DEFAULT_PAGE_SIZE = 25;
 
 type AuditAction = "create" | "update" | "delete";
 
@@ -68,6 +69,7 @@ function AuditLogPage() {
     to: "",
   });
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [detail, setDetail] = useState<{
     before: unknown;
     after: unknown;
@@ -88,7 +90,7 @@ function AuditLogPage() {
   });
 
   const { data, isPending, isError } = useQuery({
-    queryKey: ["audit", filters, page],
+    queryKey: ["audit", filters, page, pageSize],
     placeholderData: keepPreviousData,
     queryFn: async () => {
       const { data, error } = await api.audit.get({
@@ -101,7 +103,7 @@ function AuditLogPage() {
           ...(filters.from ? { from: filters.from } : {}),
           ...(filters.to ? { to: filters.to } : {}),
           page,
-          pageSize: PAGE_SIZE,
+          pageSize,
         },
       });
       if (error) throw error;
@@ -228,7 +230,12 @@ function AuditLogPage() {
         page={page}
         onChange={setPage}
         totalItems={total}
-        pageSize={PAGE_SIZE}
+        pageSize={pageSize}
+        pageSizeOptions={PAGE_SIZE_OPTIONS}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(1);
+        }}
         variant="count"
       />
 

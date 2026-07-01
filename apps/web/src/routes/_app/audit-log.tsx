@@ -12,6 +12,7 @@ import {
   LayoutContent,
   VStack,
 } from "@astryxdesign/core/Layout";
+import { Pagination } from "@astryxdesign/core/Pagination";
 import { Selector } from "@astryxdesign/core/Selector";
 import { TableCell, TableHeaderCell, TableRow } from "@astryxdesign/core/Table";
 import { Text } from "@astryxdesign/core/Text";
@@ -109,7 +110,6 @@ function AuditLogPage() {
   });
 
   const total = data?.total ?? 0;
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const resourceOptions = [
     { value: ALL, label: m.audit_all_resources() },
@@ -224,33 +224,13 @@ function AuditLogPage() {
         </tbody>
       </TableFrame>
 
-      <HStack justify="between" vAlign="center">
-        <Text type="supporting" color="secondary">
-          {m.audit_page_info({
-            page: String(page),
-            pages: String(pages),
-            total: String(total),
-          })}
-        </Text>
-        <HStack gap={2}>
-          <Button
-            variant="secondary"
-            size="sm"
-            label={m.audit_prev()}
-            icon={<Icon icon="chevronLeft" size="sm" />}
-            isDisabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          />
-          <Button
-            variant="secondary"
-            size="sm"
-            label={m.audit_next()}
-            endContent={<Icon icon="chevronRight" size="sm" />}
-            isDisabled={page >= pages}
-            onClick={() => setPage((p) => p + 1)}
-          />
-        </HStack>
-      </HStack>
+      <Pagination
+        page={page}
+        onChange={setPage}
+        totalItems={total}
+        pageSize={PAGE_SIZE}
+        variant="count"
+      />
 
       <Dialog
         isOpen={detail !== null}

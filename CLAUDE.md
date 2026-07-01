@@ -22,6 +22,8 @@ Boilerplate for internal management systems. Bun workspaces monorepo: `apps/serv
 - `bun --cwd=apps/...` — the `=` form is required; the space form silently no-ops.
 - Stop the web dev server before git branch operations — the router plugin scaffolds stubs over briefly-missing route files.
 - **No automated tests, by design** (spec decision) — verify with `bun run check` and by running the app.
+- **Keep it simple; comments explain *why*, not *what*.** Prefer the smallest clear implementation. Delete comments that restate the code — keep only those that capture intent, a non-obvious constraint, or a gotcha.
+- **Never `git commit` or `git push` unless the user explicitly asks.** Stage and edit freely; leave committing and pushing for an explicit request.
 
 ## Adding a resource
 

@@ -10,6 +10,7 @@ import { Send } from "lucide-react";
 import { useState } from "react";
 import { TextField } from "@/components/form/text-field";
 import { authClient } from "@/lib/auth-client";
+import { validateEmail } from "@/lib/validators";
 import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_auth/forgot-password")({
@@ -69,13 +70,7 @@ function ForgotPasswordPage() {
             form.handleSubmit();
           }}
         >
-          <form.Field
-            name="email"
-            validators={{
-              onChange: ({ value }) =>
-                value.includes("@") ? undefined : m.common_email_invalid(),
-            }}
-          >
+          <form.Field name="email" validators={{ onChange: validateEmail }}>
             {(field) => (
               <TextField
                 field={field}

@@ -1,12 +1,6 @@
 import { sql } from "drizzle-orm";
-import {
-  integer,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { timestamps } from "./columns";
 
 export const productStatus = pgEnum("product_status", ["active", "archived"]);
 
@@ -16,11 +10,5 @@ export const products = pgTable("products", {
   description: text("description"),
   priceCents: integer("price_cents").notNull().default(0),
   status: productStatus("status").notNull().default("active"),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
+  ...timestamps(),
 });

@@ -28,8 +28,6 @@ import { productsCollection } from "@/features/products/collection";
 import { authClient } from "@/lib/auth-client";
 import { m } from "@/paraglide/messages";
 
-// ---------- item id constants ----------
-
 const NAV_DASHBOARD = "nav-dashboard";
 const NAV_PRODUCTS = "nav-products";
 const NAV_USERS = "nav-users";
@@ -43,16 +41,12 @@ const ACTION_SIGN_OUT = "action-sign-out";
 
 const PRODUCT_PREFIX = "product-";
 
-// ---------- item type ----------
-
 interface PaletteAux {
   group: string;
   icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 type PaletteItem = SearchableItem<PaletteAux>;
-
-// ---------- component ----------
 
 export function CommandPalette({ isAdmin }: { isAdmin: boolean }) {
   const [open, setOpen] = useState(false);
@@ -89,8 +83,7 @@ export function CommandPalette({ isAdmin }: { isAdmin: boolean }) {
     [router],
   );
 
-  // Build static items (navigation + actions).
-  // These are rebuilt only when admin status or i18n changes.
+  // Rebuilt only when admin status or i18n changes.
   const staticItems = useMemo<PaletteItem[]>(() => {
     const items: PaletteItem[] = [
       {
@@ -189,7 +182,6 @@ export function CommandPalette({ isAdmin }: { isAdmin: boolean }) {
     [],
   );
 
-  // Dispatch the action that corresponds to the selected item id.
   const handleValueChange = useCallback(
     (value: string) => {
       if (value === NAV_DASHBOARD) {

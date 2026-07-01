@@ -26,6 +26,7 @@ import { api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { decodeErrorMessage } from "@/lib/mutation-error";
 import { useToast } from "@/lib/toast";
+import { validateEmail } from "@/lib/validators";
 import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_app/users")({
@@ -223,7 +224,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
     },
     onSubmit: async ({ value }) => {
       setServerError(null);
-      const { data, error } = await api.users.invite.post(value);
+      const { error } = await api.users.invite.post(value);
       if (error) {
         setServerError(
           decodeErrorMessage(error.value) ?? m.users_invite_error(),
@@ -234,7 +235,6 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
       form.reset();
       setOpen(false);
       onInvited();
-      return data;
     },
   });
 
@@ -280,12 +280,7 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
                 <VStack gap={4}>
                   <form.Field
                     name="email"
-                    validators={{
-                      onChange: ({ value }) =>
-                        value.includes("@")
-                          ? undefined
-                          : m.common_email_invalid(),
-                    }}
+                    validators={{ onChange: validateEmail }}
                   >
                     {(field) => (
                       <TextField

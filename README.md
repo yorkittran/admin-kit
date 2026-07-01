@@ -1,6 +1,6 @@
 # admin-kit
 
-Boilerplate for internal management systems. Bun · Elysia · Eden · Vite · React 19 · TanStack · Drizzle · Postgres 18 · shadcn/ui.
+Boilerplate for internal management systems. Bun · Elysia · Eden · Vite · React 19 · TanStack · Drizzle · Postgres 18 · Astryx.
 
 ## Quick start
 
